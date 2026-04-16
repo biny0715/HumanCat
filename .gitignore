@@ -1,0 +1,73 @@
+# Unity 생성 폴더
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# MemoryCaptures (프로파일러)
+[Mm]emory[Cc]aptures/
+
+# Asset meta 파일은 유지 (제외하지 않음)
+# !/Assets/**/*.meta
+
+# Unity 자동 생성 에셋
+Assets/AssetStoreTools*
+Assets/Plugins/Editor/JetBrains*
+
+# Visual Studio / Rider IDE
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity3D 생성 메타 파일
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# 로컬 개발 환경 설정
+.claude/
+.mcp.json
+.vscode/
+Assets/.mcp_auth_token
+Assets/.mcp_auth_token.meta
+Assets/StreamingAssets/realvirtual-MCP/
+Assets/New Folder/
+
+# OS 관련
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# 빌드 결과물
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Crash 리포트
+sysinfo.txt
+Crashes/
+
+# MCP 도구 문서 (불필요한 바이너리 제외)
+Assets/StreamingAssets/realvirtual-MCP/docs/*.png
