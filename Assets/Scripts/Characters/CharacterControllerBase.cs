@@ -9,6 +9,7 @@ public abstract class CharacterControllerBase : MonoBehaviour
 {
     [SerializeField] protected RuntimeAnimatorController animatorController;
     [SerializeField] protected float moveSpeed = 5f;
+    [SerializeField] bool spriteFacingRight = false;
 
     protected PlayerMover   Mover   { get; private set; }
     protected PlayerAnimator Anim   { get; private set; }
@@ -20,7 +21,9 @@ public abstract class CharacterControllerBase : MonoBehaviour
         Anim  = anim;
 
         Mover.SetMoveSpeed(moveSpeed);
-        Anim.SetController(animatorController);
+        if (animatorController != null)
+            Anim.SetController(animatorController);
+        Anim.SetFacingRight(spriteFacingRight);
 
         OnActivate();
     }

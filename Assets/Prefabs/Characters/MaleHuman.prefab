@@ -15,6 +15,10 @@ GameObject:
   - component: {fileID: 4267451964294944478}
   - component: {fileID: 59082956503352798}
   - component: {fileID: 4153571099732353572}
+  - component: {fileID: 6340492355774308778}
+  - component: {fileID: 164463752226988026}
+  - component: {fileID: 2183305374887460735}
+  - component: {fileID: 2752248204109593778}
   m_Layer: 0
   m_Name: MaleHuman
   m_TagString: Untagged
@@ -170,7 +174,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75fd298afb2544fb884bbbca699c423f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
-  playerType: 1
 --- !u!114 &4153571099732353572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183,3 +186,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c26fe87dee44f44abb9f337cca404f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaleHuman
+--- !u!114 &6340492355774308778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4719346338031069924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbe0f5f09a3db4a57908a5ee2951ea52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputReader
+--- !u!114 &164463752226988026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4719346338031069924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29db81d8bf9994534ab034d99488e9b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatController
+  animatorController: {fileID: 9100000, guid: 1bb21e070afeb4079a535f5783619989, type: 2}
+  moveSpeed: 5
+  spriteFacingRight: 1
+--- !u!114 &2183305374887460735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4719346338031069924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f9678154176d46f493be40fc6a61f5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HumanController
+  animatorController: {fileID: 9100000, guid: 796fb5cb6419b45c3b28719463052ee9, type: 2}
+  moveSpeed: 5
+  spriteFacingRight: 0
+--- !u!114 &2752248204109593778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4719346338031069924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c540b7be365c84a1e82bd4220c1878aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  startingType: 1
