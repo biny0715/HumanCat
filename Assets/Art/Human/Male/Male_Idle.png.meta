@@ -1,0 +1,359 @@
+fileFormatVersion: 2
+guid: a0a87c5acf21b43ddadabc73d374ffe3
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2766064368269666904
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_0"
+  - first:
+      213: -1786723543751418235
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_1"
+  - first:
+      213: -1894095106663105846
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_2"
+  - first:
+      213: 6848880644331358962
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_3"
+  - first:
+      213: -3101331553864486909
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_4"
+  - first:
+      213: 2097054230549787439
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_5"
+  - first:
+      213: 3946173301338101664
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_6"
+  - first:
+      213: 4672430074666663144
+    second: "ChatGPT Image 2026\u1102\u1167\u11AB 4\u110B\u116F\u11AF 16\u110B\u1175\u11AF
+      \u110B\u1169\u1112\u116E 09_49_45_7"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 110
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Male_Idle_0
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 482
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85a249043e8036620800000000000000
+      internalID: 2766064368269666904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_4
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 0
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58e9ed647684437e0800000000000000
+      internalID: -1786723543751418235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_1
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 482
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aca3a8c2982d6b5e0800000000000000
+      internalID: -1894095106663105846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_5
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 0
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fa4b6ab8ac1c0f50800000000000000
+      internalID: 6848880644331358962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_6
+      rect:
+        serializedVersion: 2
+        x: 810
+        y: 0
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3007231226bd5f4d0800000000000000
+      internalID: -3101331553864486909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_2
+      rect:
+        serializedVersion: 2
+        x: 810
+        y: 482
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2376a646bb3a1d10800000000000000
+      internalID: 2097054230549787439
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_3
+      rect:
+        serializedVersion: 2
+        x: 1136
+        y: 482
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a75368b5bf93c630800000000000000
+      internalID: 3946173301338101664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Male_Idle_7
+      rect:
+        serializedVersion: 2
+        x: 1136
+        y: 0
+        width: 280
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ecbb56b56ec7d040800000000000000
+      internalID: 4672430074666663144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 4a72c03de6bfb4aed83d478cb610c978
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Male_Idle_0: 2766064368269666904
+      Male_Idle_1: -1894095106663105846
+      Male_Idle_2: 2097054230549787439
+      Male_Idle_3: 3946173301338101664
+      Male_Idle_4: -1786723543751418235
+      Male_Idle_5: 6848880644331358962
+      Male_Idle_6: -3101331553864486909
+      Male_Idle_7: 4672430074666663144
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

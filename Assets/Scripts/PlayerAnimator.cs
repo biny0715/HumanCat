@@ -1,10 +1,14 @@
 using UnityEngine;
 
+public enum PlayerType { Cat, Human }
+
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(PlayerMover))]
 public class PlayerAnimator : MonoBehaviour
 {
+    public PlayerType playerType = PlayerType.Cat;
+
     Animator anim;
     SpriteRenderer sr;
     PlayerMover mover;
@@ -22,7 +26,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         anim.SetBool(IsMoving, mover.IsMoving);
 
-        if (mover.MoveDirection.x < 0f) sr.flipX = true;
-        else if (mover.MoveDirection.x > 0f) sr.flipX = false;
+        if (mover.MoveDirection.x < 0f)      sr.flipX = false;
+        else if (mover.MoveDirection.x > 0f) sr.flipX = true;
     }
 }
