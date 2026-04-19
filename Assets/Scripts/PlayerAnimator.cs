@@ -1,32 +1,51 @@
 using UnityEngine;
 
-public enum PlayerType { Cat, Human }
-
+/// <summary>
+/// 애니메이션 상태 제어만 담당.
+/// PlayerMover를 직접 참조하지 않고 PlayerController가 데이터를 주입한다.
+/// Cat/Human 모두 "isMoving" 파라미터를 공유하므로 타입 분기 없이 동일하게 처리.
+/// 타입별 다른 동작이 필요하면 SetAnimatorController()로 Controller만 교체한다.
+/// </summary>
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(SpriteRenderer))]
-[RequireComponent(typeof(PlayerMover))]
 public class PlayerAnimator : MonoBehaviour
 {
-    public PlayerType playerType = PlayerType.Cat;
+    static readonly int HashIsMoving = Animator.StringToHash("isMoving");
 
-    Animator anim;
-    SpriteRenderer sr;
-    PlayerMover mover;
-
-    static readonly int IsMoving = Animator.StringToHash("isMoving");
+    Animator         anim;
+    SpriteRenderer   sr;
 
     void Awake()
     {
-        anim  = GetComponent<Animator>();
-        sr    = GetComponent<SpriteRenderer>();
-        mover = GetComponent<PlayerMover>();
+        anim = GetComponent<Animator>();
+        sr   = GetComponent<SpriteRenderer>();
     }
 
-    void Update()
+    /// <summary>
+    /// CharacterController가 활성화될 때 타입에 맞는 Controller를 교체.
+    /// 이 방식으로 Cat ↔ Human 전환 시 Animator 재생성 없이 Controller만 바꾼다.
+    /// </summary>
+    public void SetController(RuntimeAnimatorController controller)
     {
-        anim.SetBool(IsMoving, mover.IsMoving);
+        if (anim.runtimeAnimatorController == controller) return;
+        anim.runtimeAnimatorController = controller;
+    }
 
-        if (mover.MoveDirection.x < 0f)      sr.flipX = false;
-        else if (mover.MoveDirection.x > 0f) sr.flipX = true;
+    /// <summary>매 프레임 PlayerController가 호출하여 상태를 동기화.</summary>
+    public void Tick(bool isMoving, Vector2 moveDirection)
+    {
+        anim.SetBool(HashIsMoving, isMoving);
+        UpdateFacing(moveDirection);
+    }
+
+    bool spriteFacingRight;
+
+    /// <summary>캐릭터 전환 시 스프라이트의 기본 방향을 설정.</summary>
+    public void SetFacingRight(bool facingRight) => spriteFacingRight = facingRight;
+
+    void UpdateFacing(Vector2 direction)
+    {
+        if (direction.x < 0f)      sr.flipX = spriteFacingRight;
+        else if (direction.x > 0f) sr.flipX = !spriteFacingRight;
     }
 }
