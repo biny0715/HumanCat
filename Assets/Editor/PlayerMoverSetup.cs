@@ -47,6 +47,15 @@ public static class PlayerMoverSetup
             col.offset    = new Vector2(0f, 0f);
             col.isTrigger = false;
 
+            // ── YSort 추가 + Sorting Layer 설정 ─────────────────────────
+            // 오브젝트 프리팹과 동일한 "Object" 레이어에서 Y축 정렬.
+            if (root.GetComponent<YSort>() == null)
+                root.AddComponent<YSort>();
+
+            var sr = root.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sortingLayerName = "Object";
+
             // ── PlayerMover 설정 ─────────────────────────────────────────
             var mover = root.GetComponent<PlayerMover>();
             if (mover == null)
