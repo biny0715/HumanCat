@@ -2,6 +2,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 
+/// <summary>
+/// NormalCat / MaleHuman 플레이어 프리팹을 자동 생성하는 Editor 유틸리티.
+/// 리팩토링된 PlayerController 기반 구조(InputReader, PlayerMover, PlayerAnimator,
+/// CatController/HumanController, PlayerController)를 모두 포함한다.
+/// </summary>
 public static class CharacterPrefabSetup
 {
     const string PrefabDir = "Assets/Prefabs/Characters";
@@ -29,16 +34,18 @@ public static class CharacterPrefabSetup
         sr.sortingOrder = 1;
 
         var rb = go.AddComponent<Rigidbody2D>();
-        rb.gravityScale = 0f;
+        rb.gravityScale   = 0f;
         rb.freezeRotation = true;
 
+        go.AddComponent<InputReader>();
         go.AddComponent<PlayerMover>();
+        go.AddComponent<Animator>();
+        go.AddComponent<PlayerAnimator>();
+        go.AddComponent<CatController>();
+        go.AddComponent<HumanController>();
 
-        var anim = go.AddComponent<Animator>();
-        anim.runtimeAnimatorController = LoadController("Assets/Animations/PlayerController.controller");
-
-        var pa = go.AddComponent<PlayerAnimator>();
-        pa.playerType = PlayerType.Cat;
+        var pc = go.AddComponent<PlayerController>();
+        SetSerializedField(pc, "startingType", (int)PlayerType.Cat);
 
         go.AddComponent<NormalCat>();
 
@@ -57,16 +64,18 @@ public static class CharacterPrefabSetup
         sr.sortingOrder = 1;
 
         var rb = go.AddComponent<Rigidbody2D>();
-        rb.gravityScale = 0f;
+        rb.gravityScale   = 0f;
         rb.freezeRotation = true;
 
+        go.AddComponent<InputReader>();
         go.AddComponent<PlayerMover>();
+        go.AddComponent<Animator>();
+        go.AddComponent<PlayerAnimator>();
+        go.AddComponent<CatController>();
+        go.AddComponent<HumanController>();
 
-        var anim = go.AddComponent<Animator>();
-        anim.runtimeAnimatorController = LoadController("Assets/Animations/Human/HumanController.controller");
-
-        var pa = go.AddComponent<PlayerAnimator>();
-        pa.playerType = PlayerType.Human;
+        var pc = go.AddComponent<PlayerController>();
+        SetSerializedField(pc, "startingType", (int)PlayerType.Human);
 
         go.AddComponent<MaleHuman>();
 
@@ -85,11 +94,12 @@ public static class CharacterPrefabSetup
             .FirstOrDefault();
     }
 
-    static RuntimeAnimatorController LoadController(string path)
+    static void SetSerializedField(Object target, string fieldName, int value)
     {
-        var ctrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(path);
-        if (ctrl == null) Debug.LogError($"[CharacterPrefabSetup] Controller 없음: {path}");
-        return ctrl;
+        var so   = new SerializedObject(target);
+        var prop = so.FindProperty(fieldName);
+        if (prop != null) prop.enumValueIndex = value;
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     static void SavePrefab(GameObject go, string path)
