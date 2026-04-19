@@ -1,66 +1,145 @@
+using System;
 using UnityEngine;
 
 /// <summary>
-/// 순수 물리 이동만 담당. 입력/애니메이션과 완전히 분리.
-/// 외부에서 MoveTo()를 호출하면 목표 지점까지 이동하고 도착 시 자동 정지.
+/// 클릭 이동. Rigidbody2D(Dynamic) + Collider2D로 장애물 충돌 차단.
+/// 물리 엔진이 충돌을 처리하므로 별도 회피 로직 없음.
+///
+/// [경계 제한]
+/// SetBounds()로 배경 크기에 맞게 설정.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMover : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float stopDistance = 0.1f;
+    [Header("Movement")]
+    [SerializeField] float moveSpeed    = 5f;
+    [SerializeField] float stopDistance = 0.15f;
 
-    public bool IsMoving       { get; private set; }
+    [Header("Bounds")]
+    [SerializeField] bool    useBounds = false;
+    [SerializeField] Vector2 boundsMin;
+    [SerializeField] Vector2 boundsMax;
+
+    /// <summary>최종 목적지 도착 시 발행.</summary>
+    public event Action OnArrived;
+
+    public bool    IsMoving      { get; private set; }
     public Vector2 MoveDirection { get; private set; }
 
-    Rigidbody2D rb;
-    Vector2 targetPosition;
+    [Header("Stuck Detection")]
+    [SerializeField] float stuckThreshold = 0.02f;  // 이 거리 미만이면 막힌 것으로 판단
+    [SerializeField] float stuckTimeout   = 0.4f;   // 이 시간(초) 이상 막히면 정지
 
-    // stopDistance를 제곱해서 캐싱 → FixedUpdate마다 곱셈 1회 절약
-    float stopDistanceSqr;
+    Rigidbody2D rb;
+    Vector2     targetPosition;
+    float       stopDistanceSqr;
+    Vector2     lastPosition;
+    float       stuckTimer;
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale   = 0f;
+        rb              = GetComponent<Rigidbody2D>();
+        rb.gravityScale = 0f;
         rb.freezeRotation = true;
-        targetPosition    = rb.position;
-        stopDistanceSqr   = stopDistance * stopDistance;
+        targetPosition  = rb.position;
+        stopDistanceSqr = stopDistance * stopDistance;
     }
 
-    /// <summary>CharacterController가 캐릭터 타입별 속도를 주입할 때 사용.</summary>
+    // ── 퍼블릭 API ────────────────────────────────────────────────────────
+
     public void SetMoveSpeed(float speed) => moveSpeed = speed;
 
-    /// <summary>목표 월드 좌표로 이동 시작.</summary>
     public void MoveTo(Vector2 worldPosition)
     {
         targetPosition = worldPosition;
-        IsMoving = true;
+        IsMoving       = true;
+        lastPosition   = rb.position;
+        stuckTimer     = 0f;
     }
 
-    /// <summary>즉시 정지 (상태 전환, 씬 변경 시 사용).</summary>
     public void Stop()
     {
-        IsMoving     = false;
-        MoveDirection = Vector2.zero;
+        IsMoving          = false;
+        MoveDirection     = Vector2.zero;
         rb.linearVelocity = Vector2.zero;
     }
 
+    /// <summary>배경 크기 기반 이동 영역 설정. SceneController에서 호출.</summary>
+    public void SetBounds(Bounds bounds)
+    {
+        useBounds = true;
+        boundsMin = bounds.min;
+        boundsMax = bounds.max;
+    }
+
+    // ── FixedUpdate ───────────────────────────────────────────────────────
+
     void FixedUpdate()
     {
-        if (!IsMoving) return;
-
-        Vector2 dir = targetPosition - rb.position;
-
-        // sqrMagnitude 비교로 sqrt 연산 제거
-        if (dir.sqrMagnitude <= stopDistanceSqr)
+        if (!IsMoving)
         {
-            rb.MovePosition(targetPosition);
-            Stop();
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        MoveDirection = dir.normalized;
-        rb.MovePosition(rb.position + MoveDirection * moveSpeed * Time.fixedDeltaTime);
+        Vector2 toTarget = targetPosition - rb.position;
+
+        if (toTarget.sqrMagnitude <= stopDistanceSqr)
+        {
+            Stop();
+            OnArrived?.Invoke();
+            return;
+        }
+
+        // 막힘 감지: 일정 시간 동안 이동량이 너무 작으면 정지
+        float moved = (rb.position - lastPosition).magnitude;
+        if (moved < stuckThreshold)
+        {
+            stuckTimer += Time.fixedDeltaTime;
+            if (stuckTimer >= stuckTimeout) { Stop(); return; }
+        }
+        else
+        {
+            stuckTimer   = 0f;
+            lastPosition = rb.position;
+        }
+
+        Vector2 dir = toTarget.normalized;
+        Vector2 vel = dir * moveSpeed;
+
+        if (useBounds)
+        {
+            Vector2 nextPos = rb.position + vel * Time.fixedDeltaTime;
+            nextPos = ClampToBounds(nextPos);
+            if (nextPos.x == boundsMin.x || nextPos.x == boundsMax.x) vel.x = 0f;
+            if (nextPos.y == boundsMin.y || nextPos.y == boundsMax.y) vel.y = 0f;
+        }
+
+        MoveDirection     = dir;
+        rb.linearVelocity = vel;
     }
+
+    // ── 유틸 ──────────────────────────────────────────────────────────────
+
+    Vector2 ClampToBounds(Vector2 pos)
+    {
+        return new Vector2(
+            Mathf.Clamp(pos.x, boundsMin.x, boundsMax.x),
+            Mathf.Clamp(pos.y, boundsMin.y, boundsMax.y));
+    }
+
+#if UNITY_EDITOR
+    void OnDrawGizmosSelected()
+    {
+        if (useBounds)
+        {
+            Gizmos.color = Color.green;
+            var center = new Vector3((boundsMin.x + boundsMax.x) * 0.5f,
+                                     (boundsMin.y + boundsMax.y) * 0.5f, 0f);
+            var size   = new Vector3(boundsMax.x - boundsMin.x,
+                                     boundsMax.y - boundsMin.y, 0f);
+            Gizmos.DrawWireCube(center, size);
+        }
+    }
+#endif
 }
