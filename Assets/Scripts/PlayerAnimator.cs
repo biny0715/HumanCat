@@ -38,10 +38,14 @@ public class PlayerAnimator : MonoBehaviour
         UpdateFacing(moveDirection);
     }
 
-    // 스프라이트 원본이 왼쪽을 바라보는 기준
+    bool spriteFacingRight;
+
+    /// <summary>캐릭터 전환 시 스프라이트의 기본 방향을 설정.</summary>
+    public void SetFacingRight(bool facingRight) => spriteFacingRight = facingRight;
+
     void UpdateFacing(Vector2 direction)
     {
-        if (direction.x < 0f)      sr.flipX = false;
-        else if (direction.x > 0f) sr.flipX = true;
+        if (direction.x < 0f)      sr.flipX = spriteFacingRight;
+        else if (direction.x > 0f) sr.flipX = !spriteFacingRight;
     }
 }
