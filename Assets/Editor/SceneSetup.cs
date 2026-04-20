@@ -63,40 +63,6 @@ public static class SceneSetup
         so.FindProperty("nightOverlay").objectReferenceValue = img;
         so.ApplyModifiedProperties();
 
-        // Debug 버튼 (우측 상단 고정)
-        var debugGo  = GetOrCreateChild(uiGo, "DebugUI");
-        var debugUI  = AddIfMissing<DayNightDebugUI>(debugGo);
-
-        var btnGo    = GetOrCreateChild(debugGo, "ToggleButton");
-        var btn      = AddIfMissing<Button>(btnGo);
-        var btnImage = AddIfMissing<Image>(btnGo);
-        btnImage.color = new Color(0f, 0f, 0f, 0.6f);
-
-        var btnRt    = btnGo.GetComponent<RectTransform>();
-        btnRt.anchorMin = new Vector2(1f, 1f);
-        btnRt.anchorMax = new Vector2(1f, 1f);
-        btnRt.pivot     = new Vector2(1f, 1f);
-        btnRt.anchoredPosition = new Vector2(-20f, -20f);
-        btnRt.sizeDelta = new Vector2(160f, 60f);
-
-        var labelGo  = GetOrCreateChild(btnGo, "Label");
-        var label    = AddIfMissing<Text>(labelGo);
-        label.text      = "→ Night";
-        label.alignment = TextAnchor.MiddleCenter;
-        label.color     = Color.white;
-        label.fontSize  = 24;
-
-        var labelRt  = labelGo.GetComponent<RectTransform>();
-        labelRt.anchorMin  = Vector2.zero;
-        labelRt.anchorMax  = Vector2.one;
-        labelRt.offsetMin  = Vector2.zero;
-        labelRt.offsetMax  = Vector2.zero;
-
-        var debugSO = new SerializedObject(debugUI);
-        debugSO.FindProperty("toggleButton").objectReferenceValue = btn;
-        debugSO.FindProperty("buttonLabel") .objectReferenceValue = label;
-        debugSO.ApplyModifiedProperties();
-
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 
