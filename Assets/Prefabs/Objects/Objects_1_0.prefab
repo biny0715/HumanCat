@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8675728541428553588}
-  - component: {fileID: 8707875202079891358}
   m_Layer: 0
   m_Name: Objects_1_0
   m_TagString: Untagged
@@ -33,20 +32,6 @@ Transform:
   - {fileID: 2359933366508177933}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8707875202079891358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6434185450224777632}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b058c360fa3914ba18fa8bd9c8dac2fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::YSort
-  baseOrder: 0
-  sortScale: 100
 --- !u!1 &7152759608771487068
 GameObject:
   m_ObjectHideFlags: 0

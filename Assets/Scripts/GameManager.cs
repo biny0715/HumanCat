@@ -22,7 +22,20 @@ public class GameManager : MonoBehaviour
     public bool IsDay   => CurrentState == GameState.Day;
     public bool IsNight => CurrentState == GameState.Night;
 
-    const string SaveKey = "GameState";
+    public bool    SavedIsIndoor      { get; private set; }
+    public Vector3 SavedPlayerPosition { get; private set; }
+    public Vector3 SavedPlayerScale    { get; private set; }
+    public bool    HasSavedPosition    { get; private set; }
+
+    const string SaveKey        = "GameState";
+    const string KeyIsIndoor    = "IsIndoor";
+    const string KeyPosX        = "PlayerPosX";
+    const string KeyPosY        = "PlayerPosY";
+    const string KeyPosZ        = "PlayerPosZ";
+    const string KeyScaleX      = "PlayerScaleX";
+    const string KeyScaleY      = "PlayerScaleY";
+    const string KeyScaleZ      = "PlayerScaleZ";
+    const string KeyHasPos      = "HasSavedPos";
 
     void Awake()
     {
@@ -51,26 +64,68 @@ public class GameManager : MonoBehaviour
     public void ToggleState()
         => ChangeState(IsDay ? GameState.Night : GameState.Day);
 
+    // ── 퍼블릭 API ───────────────────────────────────────────────────────
+
+    /// <summary>포탈 이동 시 Indoor/Outdoor 상태와 플레이어 위치·스케일을 저장.</summary>
+    public void SaveGameState(bool isIndoor, Vector3 playerPos, Vector3 playerScale)
+    {
+        SavedIsIndoor       = isIndoor;
+        SavedPlayerPosition = playerPos;
+        SavedPlayerScale    = playerScale;
+        HasSavedPosition    = true;
+
+        PlayerPrefs.SetInt(KeyIsIndoor, isIndoor ? 1 : 0);
+        PlayerPrefs.SetFloat(KeyPosX, playerPos.x);
+        PlayerPrefs.SetFloat(KeyPosY, playerPos.y);
+        PlayerPrefs.SetFloat(KeyPosZ, playerPos.z);
+        PlayerPrefs.SetFloat(KeyScaleX, playerScale.x);
+        PlayerPrefs.SetFloat(KeyScaleY, playerScale.y);
+        PlayerPrefs.SetFloat(KeyScaleZ, playerScale.z);
+        PlayerPrefs.SetInt(KeyHasPos, 1);
+        PlayerPrefs.Save();
+    }
+
     // ── 저장 / 불러오기 ──────────────────────────────────────────────────
 
     void SaveState()
     {
         PlayerPrefs.SetInt(SaveKey, (int)CurrentState);
-        PlayerPrefs.Save(); // 즉시 디스크에 기록 (앱 강제 종료 대비)
+        PlayerPrefs.Save();
     }
 
     void LoadState()
     {
-        // 저장값이 없으면 Day(0) 기본값 사용
         CurrentState = (GameState)PlayerPrefs.GetInt(SaveKey, (int)GameState.Day);
+
+        HasSavedPosition = PlayerPrefs.GetInt(KeyHasPos, 0) == 1;
+        if (HasSavedPosition)
+        {
+            SavedIsIndoor = PlayerPrefs.GetInt(KeyIsIndoor, 0) == 1;
+            SavedPlayerPosition = new Vector3(
+                PlayerPrefs.GetFloat(KeyPosX, 0f),
+                PlayerPrefs.GetFloat(KeyPosY, 0f),
+                PlayerPrefs.GetFloat(KeyPosZ, 0f));
+            SavedPlayerScale = new Vector3(
+                PlayerPrefs.GetFloat(KeyScaleX, 1f),
+                PlayerPrefs.GetFloat(KeyScaleY, 1f),
+                PlayerPrefs.GetFloat(KeyScaleZ, 1f));
+        }
     }
 
 #if UNITY_EDITOR
-    /// <summary>에디터 전용: 저장된 상태 초기화.</summary>
     [ContextMenu("Debug → Reset Saved State")]
     void ResetSavedState()
     {
         PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.DeleteKey(KeyIsIndoor);
+        PlayerPrefs.DeleteKey(KeyPosX);
+        PlayerPrefs.DeleteKey(KeyPosY);
+        PlayerPrefs.DeleteKey(KeyPosZ);
+        PlayerPrefs.DeleteKey(KeyScaleX);
+        PlayerPrefs.DeleteKey(KeyScaleY);
+        PlayerPrefs.DeleteKey(KeyScaleZ);
+        PlayerPrefs.DeleteKey(KeyHasPos);
+        HasSavedPosition = false;
         Debug.Log("[GameManager] 저장된 상태 초기화 완료");
     }
 #endif

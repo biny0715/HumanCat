@@ -87,5 +87,8 @@ public class Portal : MonoBehaviour
 
         // 이동 명령 취소 — 포탈 이후 이전 목적지로 계속 이동하는 현상 방지
         player.GetComponent<PlayerMover>()?.Stop();
+
+        // 상태 저장 — 앱 재실행 시 동일 위치·환경으로 복원
+        GameManager.Instance?.SaveGameState(toIndoor, spawnPos, scale);
     }
 }
