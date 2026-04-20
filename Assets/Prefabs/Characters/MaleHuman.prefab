@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 2183305374887460735}
   - component: {fileID: 2752248204109593778}
   - component: {fileID: 4199581276476935286}
+  - component: {fileID: 5852423572105954483}
   m_Layer: 0
   m_Name: MaleHuman
   m_TagString: Player
@@ -86,9 +87,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingLayerID: 1148430510
+  m_SortingLayer: 1
+  m_SortingOrder: 0
   m_Sprite: {fileID: 2766064368269666904, guid: a0a87c5acf21b43ddadabc73d374ffe3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -281,6 +282,20 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.54}
   m_Size: {x: 0.5, y: 0.8}
   m_Direction: 0
+--- !u!114 &5852423572105954483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4719346338031069924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b058c360fa3914ba18fa8bd9c8dac2fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YSort
+  baseOrder: 0
+  sortScale: 100

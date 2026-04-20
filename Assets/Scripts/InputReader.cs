@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 /// <summary>
@@ -19,7 +20,10 @@ public class InputReader : MonoBehaviour
     void Update()
     {
         if (TryReadTouch(out Vector2 pos) || TryReadMouse(out pos))
-            OnTapPerformed?.Invoke(pos);
+        {
+            if (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject())
+                OnTapPerformed?.Invoke(pos);
+        }
     }
 
     static bool TryReadTouch(out Vector2 screenPos)

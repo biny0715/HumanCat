@@ -22,9 +22,15 @@ public class SceneController : MonoBehaviour
 {
     public static SceneController Instance { get; private set; }
 
+    public event System.Action<EnvironmentType> OnEnvironmentChanged;
+
     [Header("Outdoor Backgrounds")]
     [SerializeField] GameObject outdoorBgDay;    // Outdoor/Background_Day
     [SerializeField] GameObject outdoorBgNight;  // Outdoor/Background_Night
+
+    [Header("Indoor Backgrounds")]
+    [SerializeField] GameObject indoorBgDay;     // Indoor/Background_Day
+    [SerializeField] GameObject indoorBgNight;   // Indoor/Background_Night
 
     [Header("Environment Roots")]
     [SerializeField] GameObject outdoorRoot;     // Outdoor 전체
@@ -55,8 +61,13 @@ public class SceneController : MonoBehaviour
             ? GameManager.Instance.CurrentState
             : GameState.Day;
 
-        // 초기 환경 + 배경 즉시 적용
-        ApplyEnvironment(EnvironmentType.Outdoor);
+        // 초기 환경 + 배경 즉시 적용 (저장된 환경 우선)
+        bool savedIndoor = GameManager.Instance != null && GameManager.Instance.HasSavedPosition
+                           && GameManager.Instance.SavedIsIndoor;
+        var initialEnv = savedIndoor ? EnvironmentType.Indoor : EnvironmentType.Outdoor;
+        currentEnvironment = initialEnv;
+        ApplyEnvironment(initialEnv);
+        OnEnvironmentChanged?.Invoke(initialEnv);
         ApplyDayNight(initialState, instant: true);
     }
 
@@ -76,6 +87,7 @@ public class SceneController : MonoBehaviour
         if (currentEnvironment == environment) return;
         currentEnvironment = environment;
         ApplyEnvironment(environment);
+        OnEnvironmentChanged?.Invoke(environment);
     }
 
     public EnvironmentType CurrentEnvironment => currentEnvironment;
@@ -101,9 +113,13 @@ public class SceneController : MonoBehaviour
     {
         bool isNight = state == GameState.Night;
 
-        // 배경 교체 (즉시)
+        // Outdoor 배경 교체
         if (outdoorBgDay   != null) outdoorBgDay  .SetActive(!isNight);
         if (outdoorBgNight != null) outdoorBgNight.SetActive(isNight);
+
+        // Indoor 배경 교체
+        if (indoorBgDay    != null) indoorBgDay   .SetActive(!isNight);
+        if (indoorBgNight  != null) indoorBgNight .SetActive(isNight);
 
         // 보조 오버레이 (부드러운 전환)
         if (nightOverlay == null) return;
