@@ -9,7 +9,7 @@ public class CatController : CharacterControllerBase
 {
     protected override void OnActivate()
     {
-        // 고양이 전환 시 추가 초기화 (예: 대시 쿨다운 리셋)
+        Anim.SetFacingRight(true);
     }
 
     protected override void OnDeactivate()

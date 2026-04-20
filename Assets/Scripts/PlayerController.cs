@@ -53,6 +53,20 @@ public class PlayerController : MonoBehaviour
         // GameManager.Awake()가 먼저 실행되므로 CurrentState는 이미 로드된 값이다.
         var initialType = ResolveInitialType();
         SwitchTo(initialType);
+
+        // 저장된 위치·스케일 복원
+        if (GameManager.Instance != null && GameManager.Instance.HasSavedPosition)
+        {
+            var gm = GameManager.Instance;
+            var rb = GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.position       = gm.SavedPlayerPosition;
+                rb.linearVelocity = Vector2.zero;
+            }
+            transform.position   = gm.SavedPlayerPosition;
+            transform.localScale = gm.SavedPlayerScale;
+        }
     }
 
     void OnDestroy()
@@ -61,6 +75,16 @@ public class PlayerController : MonoBehaviour
 
         if (GameManager.Instance != null)
             GameManager.Instance.OnStateChanged -= OnGameStateChanged;
+    }
+
+    void OnApplicationQuit()           => SaveCurrentState();
+    void OnApplicationPause(bool pause) { if (pause) SaveCurrentState(); }
+
+    void SaveCurrentState()
+    {
+        if (GameManager.Instance == null) return;
+        bool isIndoor = SceneController.Instance?.CurrentEnvironment == EnvironmentType.Indoor;
+        GameManager.Instance.SaveGameState(isIndoor, transform.position, transform.localScale);
     }
 
     void Update()

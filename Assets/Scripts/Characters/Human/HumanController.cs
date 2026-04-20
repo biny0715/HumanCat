@@ -9,7 +9,7 @@ public class HumanController : CharacterControllerBase
 {
     protected override void OnActivate()
     {
-        // 인간 전환 시 추가 초기화 (예: 인벤토리 UI 활성화)
+        Anim.SetFacingRight(false);
     }
 
     protected override void OnDeactivate()
