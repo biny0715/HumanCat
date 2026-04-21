@@ -17,6 +17,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject toNightPopupPrefab;
     [SerializeField] GameObject toDayPopupPrefab;
 
+    [Header("MiniGame Popup Prefab")]
+    [SerializeField] GameObject toMiniGamePopupPrefab;
+
     [Header("Popup Parent (Canvas)")]
     [SerializeField] Transform popupParent;
 
@@ -86,11 +89,17 @@ public class UIManager : MonoBehaviour
             popup.Initialize(!isNight, this);
     }
 
-    /// <summary>MiniGameTriggerZone에서 호출. 미니게임 진입 UI 표시.</summary>
+    /// <summary>MiniGameTriggerZone에서 호출. 미니게임 진입 팝업 표시.</summary>
     public void ShowMiniGamePrompt()
     {
-        // TODO: 미니게임 시작 팝업 연결
-        Debug.Log("[UIManager] 미니게임 트리거 진입");
+        if (IsPopupOpen) return;
+
+        if (toMiniGamePopupPrefab == null)
+        {
+            Debug.LogWarning("[UIManager] toMiniGamePopupPrefab이 연결되지 않았습니다.");
+            return;
+        }
+        activePopup = Instantiate(toMiniGamePopupPrefab, popupParent);
     }
 
     /// <summary>현재 열린 Popup 닫기.</summary>
