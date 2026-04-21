@@ -47,7 +47,8 @@ public class PlayerMover : MonoBehaviour
 
     // ── 퍼블릭 API ────────────────────────────────────────────────────────
 
-    public void SetMoveSpeed(float speed) => moveSpeed = speed;
+    public float MoveSpeed                => moveSpeed;
+    public void  SetMoveSpeed(float speed) => moveSpeed = speed;
 
     public void MoveTo(Vector2 worldPosition)
     {

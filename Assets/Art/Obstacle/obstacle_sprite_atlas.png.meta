@@ -1,0 +1,611 @@
+fileFormatVersion: 2
+guid: 7d548c90b7579457eacddaae47f2628e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2450003364290959787
+    second: obstacle_sprite_atlas_0
+  - first:
+      213: 135294597458905524
+    second: obstacle_sprite_atlas_1
+  - first:
+      213: 4461907024503013826
+    second: obstacle_sprite_atlas_2
+  - first:
+      213: -8215206684629406337
+    second: obstacle_sprite_atlas_3
+  - first:
+      213: -4397636402876467088
+    second: obstacle_sprite_atlas_4
+  - first:
+      213: 4217286209760262472
+    second: obstacle_sprite_atlas_5
+  - first:
+      213: 5082328192181656120
+    second: obstacle_sprite_atlas_6
+  - first:
+      213: -4196356492819935088
+    second: obstacle_sprite_atlas_7
+  - first:
+      213: -2215733643088247622
+    second: obstacle_sprite_atlas_8
+  - first:
+      213: -6242786025220091049
+    second: obstacle_sprite_atlas_9
+  - first:
+      213: 3958069465379113508
+    second: obstacle_sprite_atlas_10
+  - first:
+      213: -5246545902588825369
+    second: obstacle_sprite_atlas_11
+  - first:
+      213: 555173589951628867
+    second: obstacle_sprite_atlas_12
+  - first:
+      213: -1122313674490088691
+    second: obstacle_sprite_atlas_13
+  - first:
+      213: -2912031994833369888
+    second: obstacle_sprite_atlas_14
+  - first:
+      213: 1157586284743287952
+    second: obstacle_sprite_atlas_15
+  - first:
+      213: 4940603319543736682
+    second: obstacle_sprite_atlas_16
+  - first:
+      213: 8502689021584236166
+    second: obstacle_sprite_atlas_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_0
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 1820
+        width: 87
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba913134419200220800000000000000
+      internalID: 2450003364290959787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_1
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 1816
+        width: 91
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b9419538b9a0e100800000000000000
+      internalID: 135294597458905524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_2
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 1806
+        width: 109
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c182507cc0ebed30800000000000000
+      internalID: 4461907024503013826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_3
+      rect:
+        serializedVersion: 2
+        x: 855
+        y: 1806
+        width: 107
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7def3edb09bdfd80800000000000000
+      internalID: -8215206684629406337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_4
+      rect:
+        serializedVersion: 2
+        x: 1097
+        y: 1818
+        width: 127
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 078b833cdf478f2c0800000000000000
+      internalID: -4397636402876467088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_5
+      rect:
+        serializedVersion: 2
+        x: 1441
+        y: 1810
+        width: 135
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 849f9e0b67fc68a30800000000000000
+      internalID: 4217286209760262472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_6
+      rect:
+        serializedVersion: 2
+        x: 1723
+        y: 1832
+        width: 61
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83ad0fe309e088640800000000000000
+      internalID: 5082328192181656120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_7
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 1421
+        width: 149
+        height: 108
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0905096c00c83c5c0800000000000000
+      internalID: -4196356492819935088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_8
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 1436
+        width: 211
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab4c7d6bdf12041e0800000000000000
+      internalID: -2215733643088247622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_9
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 1446
+        width: 183
+        height: 95
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 753dbfd8f2b2d59a0800000000000000
+      internalID: -6242786025220091049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_10
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 1436
+        width: 133
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42a0e304533ede630800000000000000
+      internalID: 3958069465379113508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_11
+      rect:
+        serializedVersion: 2
+        x: 1460
+        y: 1440
+        width: 91
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e0796a8c468037b0800000000000000
+      internalID: -5246545902588825369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_12
+      rect:
+        serializedVersion: 2
+        x: 1717
+        y: 1432
+        width: 183
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 346ceb9407f54b700800000000000000
+      internalID: 555173589951628867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_13
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 918
+        width: 223
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d037479c8adbc60f0800000000000000
+      internalID: -1122313674490088691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_14
+      rect:
+        serializedVersion: 2
+        x: 509
+        y: 952
+        width: 239
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e4826d44526697d0800000000000000
+      internalID: -2912031994833369888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_15
+      rect:
+        serializedVersion: 2
+        x: 1004
+        y: 924
+        width: 253
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 094ecf2c792901010800000000000000
+      internalID: 1157586284743287952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_16
+      rect:
+        serializedVersion: 2
+        x: 1319
+        y: 938
+        width: 179
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a69258dea8c809440800000000000000
+      internalID: 4940603319543736682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: obstacle_sprite_atlas_17
+      rect:
+        serializedVersion: 2
+        x: 1705
+        y: 940
+        width: 167
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68e542fad9e9ff570800000000000000
+      internalID: 8502689021584236166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      obstacle_sprite_atlas_0: 2450003364290959787
+      obstacle_sprite_atlas_1: 135294597458905524
+      obstacle_sprite_atlas_10: 3958069465379113508
+      obstacle_sprite_atlas_11: -5246545902588825369
+      obstacle_sprite_atlas_12: 555173589951628867
+      obstacle_sprite_atlas_13: -1122313674490088691
+      obstacle_sprite_atlas_14: -2912031994833369888
+      obstacle_sprite_atlas_15: 1157586284743287952
+      obstacle_sprite_atlas_16: 4940603319543736682
+      obstacle_sprite_atlas_17: 8502689021584236166
+      obstacle_sprite_atlas_2: 4461907024503013826
+      obstacle_sprite_atlas_3: -8215206684629406337
+      obstacle_sprite_atlas_4: -4397636402876467088
+      obstacle_sprite_atlas_5: 4217286209760262472
+      obstacle_sprite_atlas_6: 5082328192181656120
+      obstacle_sprite_atlas_7: -4196356492819935088
+      obstacle_sprite_atlas_8: -2215733643088247622
+      obstacle_sprite_atlas_9: -6242786025220091049
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
