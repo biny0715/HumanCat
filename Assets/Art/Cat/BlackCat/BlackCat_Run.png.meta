@@ -1,34 +1,34 @@
 fileFormatVersion: 2
-guid: f9afe112c794244cb83557093676014c
+guid: 8013fa91a560e46b5aced824f1e328c0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4773301656679711519
-    second: normal_Cat_Walk_0
+      213: -2569035484814699170
+    second: BlackCat_Run_0
   - first:
-      213: 6051935267547796012
-    second: normal_Cat_Walk_1
+      213: -939149330890827606
+    second: BlackCat_Run_1
   - first:
-      213: 785430156558377164
-    second: normal_Cat_Walk_2
+      213: 6043587131077378122
+    second: BlackCat_Run_2
   - first:
-      213: -5128025298248576185
-    second: normal_Cat_Walk_3
+      213: 4117198919981662817
+    second: BlackCat_Run_3
   - first:
-      213: 6080076547690508995
-    second: normal_Cat_Walk_4
+      213: -2204614611603997574
+    second: BlackCat_Run_4
   - first:
-      213: 190194267756795314
-    second: normal_Cat_Walk_5
+      213: -5826274167393797640
+    second: BlackCat_Run_5
   - first:
-      213: 1270927732041304936
-    second: normal_Cat_Walk_6
+      213: 8448858716564311592
+    second: BlackCat_Run_6
   - first:
-      213: -2765643148759221560
-    second: normal_Cat_Walk_7
+      213: 198627959812300858
+    second: BlackCat_Run_7
   - first:
-      213: -4678551907144689120
-    second: normal_Cat_Walk_8
+      213: -7966713077157319008
+    second: BlackCat_Run_8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 130
+  spritePixelsToUnits: 70
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -150,199 +150,199 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: normal_Cat_Walk_0
+      name: BlackCat_Run_0
       rect:
         serializedVersion: 2
-        x: 139
-        y: 660
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 26
+        y: 728
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1ec72dbee63d1cdb0800000000000000
-      internalID: -4773301656679711519
+      spriteID: e551f3086d3f85cd0800000000000000
+      internalID: -2569035484814699170
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_1
+      name: BlackCat_Run_1
       rect:
         serializedVersion: 2
-        x: 139
-        y: 358
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 358
+        y: 728
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c2258d1bf0bccf350800000000000000
-      internalID: 6051935267547796012
+      spriteID: aa8d43dc8a877f2f0800000000000000
+      internalID: -939149330890827606
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_2
+      name: BlackCat_Run_2
       rect:
         serializedVersion: 2
-        x: 139
-        y: 87
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 677
+        y: 728
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cc0aa85e09866ea00800000000000000
-      internalID: 785430156558377164
+      spriteID: a404df4b9722fd350800000000000000
+      internalID: 6043587131077378122
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_3
+      name: BlackCat_Run_3
       rect:
         serializedVersion: 2
-        x: 564
-        y: 660
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 30
+        y: 439
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7435da2292895d8b0800000000000000
-      internalID: -5128025298248576185
+      spriteID: 16201279a9a332930800000000000000
+      internalID: 4117198919981662817
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_4
+      name: BlackCat_Run_4
       rect:
         serializedVersion: 2
-        x: 564
-        y: 87
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 362
+        y: 439
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3c2b6401865c06450800000000000000
-      internalID: 6080076547690508995
+      spriteID: a7c35b8f0b2a761e0800000000000000
+      internalID: -2204614611603997574
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_5
+      name: BlackCat_Run_5
       rect:
         serializedVersion: 2
-        x: 564
-        y: 358
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 677
+        y: 439
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2b595f7cda4b3a200800000000000000
-      internalID: 190194267756795314
+      spriteID: 8f93570838ae42fa0800000000000000
+      internalID: -5826274167393797640
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_6
+      name: BlackCat_Run_6
       rect:
         serializedVersion: 2
-        x: 1011
-        y: 660
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 26
+        y: 183
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 86bc383e90e33a110800000000000000
-      internalID: 1270927732041304936
+      spriteID: 82e474e1d30604570800000000000000
+      internalID: 8448858716564311592
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_7
+      name: BlackCat_Run_7
       rect:
         serializedVersion: 2
-        x: 1011
-        y: 358
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 362
+        y: 183
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8cab6be85367e99d0800000000000000
-      internalID: -2765643148759221560
+      spriteID: a30a21bb31ba1c200800000000000000
+      internalID: 198627959812300858
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: normal_Cat_Walk_8
+      name: BlackCat_Run_8
       rect:
         serializedVersion: 2
-        x: 1011
-        y: 87
-        width: 284
-        height: 284
-      alignment: 9
-      pivot: {x: 0.5, y: 0.2}
+        x: 677
+        y: 183
+        width: 300
+        height: 150
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 02a1a6714d1721fb0800000000000000
-      internalID: -4678551907144689120
+      spriteID: 0ae24907aac807190800000000000000
+      internalID: -7966713077157319008
       vertices: []
       indices: 
       edges: []
@@ -351,7 +351,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 868dd6ffdbd2446859b597f07e8103b1
+    spriteID: 19480cab97c3c44a7a7ca7c8765c0e8d
     internalID: 0
     vertices: []
     indices: 
@@ -361,15 +361,15 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      normal_Cat_Walk_0: -4773301656679711519
-      normal_Cat_Walk_1: 6051935267547796012
-      normal_Cat_Walk_2: 785430156558377164
-      normal_Cat_Walk_3: -5128025298248576185
-      normal_Cat_Walk_4: 6080076547690508995
-      normal_Cat_Walk_5: 190194267756795314
-      normal_Cat_Walk_6: 1270927732041304936
-      normal_Cat_Walk_7: -2765643148759221560
-      normal_Cat_Walk_8: -4678551907144689120
+      BlackCat_Run_0: -2569035484814699170
+      BlackCat_Run_1: -939149330890827606
+      BlackCat_Run_2: 6043587131077378122
+      BlackCat_Run_3: 4117198919981662817
+      BlackCat_Run_4: -2204614611603997574
+      BlackCat_Run_5: -5826274167393797640
+      BlackCat_Run_6: 8448858716564311592
+      BlackCat_Run_7: 198627959812300858
+      BlackCat_Run_8: -7966713077157319008
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
