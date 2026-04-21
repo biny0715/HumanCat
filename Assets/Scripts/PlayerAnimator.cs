@@ -62,7 +62,7 @@ public class PlayerAnimator : MonoBehaviour
 
     void UpdateFacing(Vector2 direction)
     {
-        if      (direction.x < 0f) sr.flipX =  spriteFacingRight;
-        else if (direction.x > 0f) sr.flipX = !spriteFacingRight;
+        if      (direction.x < -0.1f) sr.flipX =  spriteFacingRight;
+        else if (direction.x >  0.1f) sr.flipX = !spriteFacingRight;
     }
 }

@@ -27,6 +27,11 @@ public class DayNightPopup : MonoBehaviour
     {
         var targetState = goToNight ? GameState.Night : GameState.Day;
         GameManager.Instance?.ChangeState(targetState);
+
+        // 시간을 경계값으로 맞춤 (밤 → 18:00, 낮 → 06:00)
+        if (goToNight) TimeManager.Instance?.SetTime(18, 0);
+        else           TimeManager.Instance?.SetTime(6,  0);
+
         uiManager.HidePopup();
     }
 
