@@ -1,28 +1,10 @@
 fileFormatVersion: 2
-guid: 73a9ddd538ac8404685595df5f4fc44a
+guid: 4cd5e37a16737404b873bdba0f6d3361
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7546229338515786077
-    second: Popup_UI_0
-  - first:
-      213: -6059168070727274012
-    second: Popup_UI_1
-  - first:
-      213: 8497712754996954328
-    second: Popup_UI_2
-  - first:
-      213: 8609440822320521683
-    second: Popup_UI_3
-  - first:
-      213: -7349740719986229394
-    second: Popup_UI_4
-  - first:
-      213: -2142897401727392127
-    second: Popup_UI_5
-  - first:
-      213: -3640978256412182698
-    second: Popup_UI_6
+      213: 2345579413924639620
+    second: night_seamless_tilemap_1024_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -64,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -144,67 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Popup_UI_0
+      name: night_seamless_tilemap_1024_0
       rect:
         serializedVersion: 2
-        x: 250
-        y: 544
-        width: 1035
-        height: 340
+        x: 0
+        y: 0
+        width: 1024
+        height: 1024
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 70, z: 0, w: 70}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3a6b224f568664790800000000000000
-      internalID: -7546229338515786077
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Popup_UI_3
-      rect:
-        serializedVersion: 2
-        x: 302
-        y: 220
-        width: 440
-        height: 135
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3d1692920d0ea7770800000000000000
-      internalID: 8609440822320521683
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Popup_UI_5
-      rect:
-        serializedVersion: 2
-        x: 791
-        y: 220
-        width: 440
-        height: 135
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1866eebaa26e242e0800000000000000
-      internalID: -2142897401727392127
+      spriteID: 483727fac0c2d8020800000000000000
+      internalID: 2345579413924639620
       vertices: []
       indices: 
       edges: []
@@ -213,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 730434a785913401da364e6b7881df25
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -223,13 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Popup_UI_0: -7546229338515786077
-      Popup_UI_1: -6059168070727274012
-      Popup_UI_2: 8497712754996954328
-      Popup_UI_3: 8609440822320521683
-      Popup_UI_4: -7349740719986229394
-      Popup_UI_5: -2142897401727392127
-      Popup_UI_6: -3640978256412182698
+      night_seamless_tilemap_1024_0: 2345579413924639620
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
