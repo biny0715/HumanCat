@@ -8,6 +8,12 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 
 ---
 
+## 플레이 영상
+
+[![플레이 영상](https://img.youtube.com/vi/eAe0rFT4J2A/0.jpg)](https://youtube.com/shorts/eAe0rFT4J2A)
+
+---
+
 ## 게임 개요
 
 | 구분 | 내용 |
