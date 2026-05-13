@@ -26,6 +26,16 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 
 ## 씬 구성
 
+### LoginScene
+앱 진입 씬 (Build Index 0). 최초 실행 여부에 따라 분기.
+
+- **최초 실행** → 컷씬(8컷 33줄 대사) → 사용자/보호소 이름 입력 → Main
+- **재실행** → 저장된 이름 표시 + 로그인 버튼 → Main
+- **CutsceneManager** — 상태머신(`Idle / FadingIn / Typing / WaitingDelay / WaitingInput / FadingOut / Finished`) + 페이드(CanvasGroup) + Skip 버튼
+- **TypewriterEffect** — `maxVisibleCharacters` 기반 타이핑 효과 (GC 0)
+- **NameInputUI** — 한글 6자 제한 3중 방어선 (`characterLimit` + `onValidateInput` + `onValueChanged`)
+- **BackgroundRandomizer** — NameInput/Login 화면 진입 시 후보 sprite 중 랜덤 선택 + `AspectRatioFitter.EnvelopeParent` 로 letterbox 없이 화면 cover
+
 ### Main
 메인 월드 탐색 씬.
 
@@ -123,6 +133,9 @@ CharacterBase
 
 | 키 | 내용 |
 |----|------|
+| `Login.HasInit` | 최초 실행 완료 플래그 (0=미실행, 1=초기화 완료) |
+| `Login.UserName` | 사용자 이름 (한글 ≤6자) |
+| `Login.ShelterName` | 보호소 이름 (한글 ≤6자) |
 | `GameState` | 현재 낮/밤 상태 |
 | `time_gameMinutes` | 현재 게임 시간(분) |
 | `time_saveTicks` | 저장 시각 (오프라인 경과 계산용) |
@@ -146,19 +159,23 @@ Assets/
 │   ├── Cat/
 │   │   ├── NormalCat/       # 플레이어 캐릭터 스프라이트
 │   │   └── BlackCat/        # 도망 고양이(TargetDummy) 스프라이트
+│   ├── Cutscenes/Login/     # 로그인 씬 컷씬 이미지 (Cut_01 ~ Cut_08)
 │   ├── Fonts/               # Maplestory OTF Bold/Light SDF
 │   ├── Obstacle/            # 장애물 스프라이트 아틀라스 (18종)
 │   ├── Objects/             # Portal 등 오브젝트 이미지
-│   └── UI/                  # 팝업, 앱 아이콘, Quit 버튼 이미지
+│   └── UI/                  # 팝업, 앱 아이콘, Quit 버튼, HumanCat_Title 이미지
 ├── Editor/                  # 씬 설치 자동화 스크립트 (HumanCat 메뉴)
 ├── Prefabs/
 │   ├── MiniGame/Obstacles/  # Obstacle_0 ~ Obstacle_17
 │   └── UI/                  # ToMiniGame_Popup, Exit_Popup
 ├── Scenes/
+│   ├── LoginScene.unity     # 진입 씬 (컷씬 + 이름 입력 / 로그인 분기)
 │   ├── Main.unity
 │   └── MiniGame_Chase.unity
 └── Scripts/
     ├── Characters/          # CharacterBase, Cat, Human 계층
+    ├── Login/               # LoginManager, CutsceneManager, NameInputUI, LoginUI, TypewriterEffect, BackgroundRandomizer, CutData
+    │   └── Editor/          # LoginSceneBuilder (씬 자동 구성)
     ├── MiniGame/            # 미니게임 로직 전체
     ├── Time/                # TimeManager
     └── UI/                  # QuitButton, MiniGamePopup, TimeUI
