@@ -30,6 +30,10 @@ public class PlayerController : MonoBehaviour
     CharacterControllerBase activeController;
     Camera                  mainCam;
 
+    /// <summary>현재 활성 캐릭터 타입. 활성 컨트롤러가 없으면 Cat 으로 간주.</summary>
+    public PlayerType CurrentType =>
+        activeController == humanController ? PlayerType.Human : PlayerType.Cat;
+
     void Awake()
     {
         inputReader     = GetComponent<InputReader>();

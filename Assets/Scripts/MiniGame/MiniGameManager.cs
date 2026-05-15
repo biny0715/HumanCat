@@ -19,11 +19,16 @@ public class MiniGameManager : MonoBehaviour
     [SerializeField] float maxCatchDistance  = 8f;
     [SerializeField] float graceTime         = 3f;
 
+    [Header("Rewards (Gold 코인)")]
+    [Tooltip("성공/캐치 각각의 보상 = 현재 레벨 × 이 값. 지급되는 재화는 Gold.")]
+    [SerializeField] int   coinPerLevel       = 100;
+
     [Header("References")]
     [SerializeField] MiniGamePlayer   player;
     [SerializeField] TargetDummy      targetDummy;
     [SerializeField] TileManager      tileManager;
     [SerializeField] ObstacleManager  obstacleManager;
+    [SerializeField] FishCoinSpawner  fishCoinSpawner;
 
     [Header("UI")]
     [SerializeField] TMP_Text   timerText;
@@ -61,6 +66,8 @@ public class MiniGameManager : MonoBehaviour
         player?.ApplyStats();
         player?.SetRunning(true);
         targetDummy?.SetRunning(true);
+        fishCoinSpawner?.ResetRun();
+        fishCoinSpawner?.SetRunning(true);
 
         timeRemaining = gameDuration;
         graceTimer    = 0f;
@@ -75,6 +82,12 @@ public class MiniGameManager : MonoBehaviour
     }
 
     public void SetDuration(float duration) => gameDuration = duration;
+
+    /// <summary>해당 레벨에서 "버티기 성공"으로 받는 Gold 코인.</summary>
+    public int SurvivalReward(int level) => Mathf.Max(1, level) * coinPerLevel;
+
+    /// <summary>해당 레벨에서 "캐치 성공"으로 추가로 받는 Gold 코인.</summary>
+    public int CatchBonusReward(int level) => Mathf.Max(1, level) * coinPerLevel;
 
     public void OnPlayerDamaged(int hp, float hpPercent)
     {
@@ -93,7 +106,7 @@ public class MiniGameManager : MonoBehaviour
         graceTimer    += Time.deltaTime;
         RefreshTimerUI();
 
-        if (timeRemaining <= 0f) { Success(); return; }
+        if (timeRemaining <= 0f) { Success(caught: false); return; }
 
         if (graceTimer >= graceTime)
         {
@@ -108,7 +121,7 @@ public class MiniGameManager : MonoBehaviour
     {
         if (player == null || targetDummy == null) return;
         float dist = Vector2.Distance(player.transform.position, targetDummy.transform.position);
-        if (dist <= catchDistance) Success();
+        if (dist <= catchDistance) Success(caught: true);
     }
 
     void CheckFailConditions()
@@ -119,9 +132,16 @@ public class MiniGameManager : MonoBehaviour
             Fail($"거리가 너무 멀어졌습니다! ({dist:F1}m)");
     }
 
-    void Success()
+    void Success(bool caught)
     {
         State = MiniGameState.Success;
+
+        // 보상 지급: 버티기 성공분은 항상, 캐치 보너스는 잡았을 때 추가. 지급은 Gold.
+        int level   = StatManager.Instance != null ? StatManager.Instance.Level : 1;
+        int reward  = SurvivalReward(level) + (caught ? CatchBonusReward(level) : 0);
+        CurrencyManager.Instance?.Add(CurrencyType.Gold, reward);
+        Debug.Log($"[MiniGame] 성공({(caught ? "캐치" : "버티기")}) Lv{level} → Gold +{reward}");
+
         StatManager.Instance?.OnGameSuccess();
         StopAll();
         if (HandleTimeAfterGame()) return;
@@ -166,6 +186,7 @@ public class MiniGameManager : MonoBehaviour
         targetDummy?.SetRunning(false);
         tileManager?.SetRunning(false);
         obstacleManager?.SetRunning(false);
+        fishCoinSpawner?.SetRunning(false);
     }
 
     void RefreshTimerUI()

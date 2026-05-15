@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5a2535fc9b73b45ad537354e2c8d5d, type: 3}
+  m_Name: Item_Chair_01
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemId: Chair_01
+  displayName: "\uC758\uC790 1"
+  icon: {fileID: 6065979285903391188, guid: 7205e1b6f72be42b8bd1108eb3d78dd5, type: 3}
+  description: 
+  fishPrice: 0
+  goldPrice: 200
+  stackable: 1
+  maxStack: 10
+  placementPrefab: {fileID: 540172770392688924, guid: 259c8dc5986cc42da8b1d48bfeedcc9e, type: 3}
+  allowedSurfaces: 1

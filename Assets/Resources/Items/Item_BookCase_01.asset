@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5a2535fc9b73b45ad537354e2c8d5d, type: 3}
+  m_Name: Item_BookCase_01
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemId: BookCase_01
+  displayName: "\uCC45\uC7A5"
+  icon: {fileID: -5480389787316866402, guid: 4581a5fa20bc24adbb91b4d74cd3a0c3, type: 3}
+  description: 
+  fishPrice: 0
+  goldPrice: 300
+  stackable: 1
+  maxStack: 10
+  placementPrefab: {fileID: 1369985909398882854, guid: 5099077bc6f3049128b1c21d93713ba0, type: 3}
+  allowedSurfaces: -1

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5a2535fc9b73b45ad537354e2c8d5d, type: 3}
+  m_Name: Item_Bench_01
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemId: Bench_01
+  displayName: "\uB0AE\uC740 \uAE34 \uBCA4\uCE58"
+  icon: {fileID: 5036678975684380010, guid: 4581a5fa20bc24adbb91b4d74cd3a0c3, type: 3}
+  description: 
+  fishPrice: 0
+  goldPrice: 300
+  stackable: 1
+  maxStack: 10
+  placementPrefab: {fileID: 2302726545791100598, guid: e3de2d3b5ca934729b862f5fe8e2fce2, type: 3}
+  allowedSurfaces: 1

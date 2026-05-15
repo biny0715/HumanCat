@@ -15,6 +15,8 @@ public class StatUI : MonoBehaviour
 
     [Header("Info Texts")]
     [SerializeField] TMP_Text levelText;
+    [Tooltip("LevelText와 PointsText 사이에 배치. 현재 레벨 기준 성공/캐치 보상을 표시.")]
+    [SerializeField] TMP_Text rewardText;
     [SerializeField] TMP_Text pointsText;
 
     [Header("Speed Stat")]
@@ -83,6 +85,7 @@ public class StatUI : MonoBehaviour
         if (sm == null) return;
 
         if (levelText)   levelText.text   = $"Lv. {sm.Level}";
+        if (rewardText)  rewardText.text  = BuildRewardText(sm.Level);
         if (pointsText)  pointsText.text  = $"스탯 포인트: {sm.StatPoints}";
 
         if (speedValueText)  speedValueText.text  = $"{sm.SpeedStat}  (+{sm.ComputedMoveSpeed:F1} 속도)";
@@ -111,5 +114,16 @@ public class StatUI : MonoBehaviour
         statPanel?.SetActive(false);
         LevelManager.Instance?.ApplyDifficulty();
         MiniGameManager.Instance?.StartGame();
+    }
+
+    // ── 보상 표시 ─────────────────────────────────────────────────────────
+
+    /// <summary>현재 레벨 기준 기대 보상 문자열. MiniGameManager 의 공식 사용.</summary>
+    string BuildRewardText(int level)
+    {
+        var mgm = MiniGameManager.Instance;
+        int survival = mgm != null ? mgm.SurvivalReward(level)    : level * 100;
+        int catchAdd = mgm != null ? mgm.CatchBonusReward(level)  : level * 100;
+        return $"기대 보상\n성공: {survival:N0} Gold / 캐치 시 추가: +{catchAdd:N0} Gold";
     }
 }

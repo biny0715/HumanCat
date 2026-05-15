@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5a2535fc9b73b45ad537354e2c8d5d, type: 3}
+  m_Name: Item_CatBowl_03
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemId: CatBowl_03
+  displayName: "\uC5F0\uB450\uC0C9 \uADF8\uB987"
+  icon: {fileID: 7730504753126267610, guid: 4581a5fa20bc24adbb91b4d74cd3a0c3, type: 3}
+  description: 
+  fishPrice: 0
+  goldPrice: 200
+  stackable: 1
+  maxStack: 10
+  placementPrefab: {fileID: 2432570112617430999, guid: f45552a18382b49efa324d5c87655282, type: 3}
+  allowedSurfaces: 1

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5a2535fc9b73b45ad537354e2c8d5d, type: 3}
+  m_Name: Item_Pot_02
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemId: Pot_02
+  displayName: "\uD654\uBD84 2"
+  icon: {fileID: 1868516907277912714, guid: 4581a5fa20bc24adbb91b4d74cd3a0c3, type: 3}
+  description: 
+  fishPrice: 0
+  goldPrice: 200
+  stackable: 1
+  maxStack: 10
+  placementPrefab: {fileID: 4997870388369892579, guid: 7edec0a9da8454afab836bb2ca5d2fe5, type: 3}
+  allowedSurfaces: -1
