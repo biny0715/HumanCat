@@ -89,9 +89,11 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 - **ItemData** — ScriptableObject 자산 (`Assets/Resources/Items/`)
   - `itemId`(저장 안정성), `displayName`, `icon`, 가격(Fish/Gold), 스택 규칙, `placementPrefab`, `allowedSurfaces` (`[Flags]`로 Floor/Wall)
 - **InventorySlot** — `{ itemId, count }` JSON 직렬화
-- **저장** — `Inventory.Data` 단일 키에 `JsonUtility`로 저장
+- **Human / Cat 인벤토리 분리** — `InventorySaveData{ human, cat }` 통합 저장. PlayerController.CurrentType 기준으로 현재 인벤토리 자동 매핑
+- **저장** — `Inventory.Data` 단일 키에 `JsonUtility`로 저장 (두 인벤토리 모두 포함)
 - **부팅 시** `Resources.LoadAll<ItemData>("Items")`로 ID→자산 매핑 캐싱
-- API: `TryAddItem` / `TryRemoveItem` / `CanAddItem` / `GetCount` / `ExpandMaxSlot`
+- API: `TryAddItem` / `TryRemoveItem` / `CanAddItem` / `GetCount` / `ExpandMaxSlot` (현재 인벤토리) + `*For(PlayerType, ...)` (특정 캐릭터 지정)
+- 캐릭터 전환(GameManager.OnStateChanged 구독) 시 `OnInventoryChanged` 자동 발행 → UI 자동 갱신
 - 슬롯 한도: 기본 100, 확장 가능 (하드 상한 999)
 - 정합성: 로드 시 등록 안 된 itemId / count≤0 슬롯 자동 정리
 
@@ -99,10 +101,32 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 - **Shop** — Indoor 가구(`Indoor/Furniture/Objects_1_3`) 자식 두 개(Human=Gold, Cat=Fish)
   - `acceptedCurrency`로 한 가지 재화만 사용 / `Buy()`는 트랜잭션 (실패 시 잔액·인벤토리 변동 없음)
 - **ShopTrigger** — Trigger Collider2D, `PlayerController.CurrentType` 기준 분기 → `OnShopOpenRequested(shop)` 정적 이벤트 발행
+  - 영역 안에서 GameState 변경 시 새 캐릭터 상점으로 자동 재발행 (Human↔Cat 즉시 교체)
+  - 외부 호출용: `ForceOpen()` (GNB 상점 버튼이 호출), `static RequestCloseAll()` (ShopUI 닫기 버튼이 호출)
 - **ShopUI** — `[ UI ]/HumanShop`, `[ UI ]/CatShop` 두 정적 패널
   - **사전 인스턴스화**: `ShopUIBootstrap.Start()`에서 `Initialize()` 호출 → stockList 행을 한 번만 생성 후 비활성
-  - 트리거 진입 시점엔 `SetActive`만 — 인스턴스 비용 0
+  - 다른 캐릭터용 shop 요청 수신 시 자기 패널은 자동 닫힘
 - **ShopItemRow** — 아이콘 + 이름 + 가격 + 구매 버튼 (재화/인벤토리 상태로 interactable 자동 갱신)
+
+### 인벤토리 UI (InventoryUI + 팝업)
+- **두 가지 진입 모드** — 같은 패널을 모드만 바꿔 재사용
+  - **Standalone** — GNB 인벤토리 버튼 클릭 시. 닫기 버튼 활성. 행 클릭 → 사용 팝업
+  - **Shop** — ShopTrigger 이벤트 자동 구독. 상점과 함께 열림. 닫기 버튼 비활성. 행 클릭 → 판매 팝업
+- **페이지 풀 재사용** — `itemsPerPage`(기본 6) 만큼만 ShopItemRow 사전 인스턴스화, 페이지 전환 시 Bind 재호출 (인스턴스 비용 0)
+- **InventoryUIBootstrap** — 비활성 패널의 `Initialize()` 를 게임 시작 시 호출 (Awake 의존 제거)
+- **SellPopupUI** — 판매 가격 = (현재 캐릭터 재화 기준) × 0.5, 0 미만은 0. 확인 → 인벤토리 차감 + Currency.Add
+- **UsePopupUI** — 사용 → 인벤토리 닫기 (입력 자동 복귀). Placeable 아이템은 향후 배치 모드 진입 지점 (TODO)
+
+### UI 입력 차단 (UIBlocker)
+- 열린 UI 개수를 카운트(`Acquire`/`Release`) 하고 `lockCount > 0` 시 `PlayerController.SetInputEnabled(false)` 자동 호출
+- ShopUI / InventoryUI / 팝업이 OnEnable/OnDisable 에서 짝지어 호출 → 카운트 0 으로 떨어지면 자동 입력 복구
+- 모든 UI 가 같은 매니저를 공유하므로 race-free
+- LoginScene 에 GameObject 1개 배치 (DontDestroyOnLoad)
+
+### GNB 액션 아이콘
+- **`GNB/InventoryBtn`** (좌하단) — `InventoryIcon.png`, 클릭 시 `InventoryUI.OpenStandalone()`
+- **`GNB/ShopBtn`** (우하단) — `ShopIcon.png`, **Indoor 상태에서만 표시** (SceneController.OnEnvironmentChanged 구독), 클릭 시 `ShopTrigger.ForceOpen()`
+- `InventoryOpenButton` / `ShopOpenButton` 컴포넌트가 인스펙터에서 target 슬롯만 받아 클릭 위임
 
 ---
 
@@ -179,7 +203,7 @@ CharacterBase
 | `time_gameMinutes` / `time_saveTicks` | 게임 시간 + 오프라인 경과 계산 |
 | `mini_level` / `mini_statPoints` / `mini_speedStat` / `mini_hpStat` / `mini_resistStat` | 미니게임 스탯 |
 | `Currency.Fish` / `Currency.Gold` | 재화 (string으로 long 직렬화) |
-| `Inventory.Data` | 인벤토리 전체 JSON (`{ maxSlot, slots[] }`) |
+| `Inventory.Data` | 인벤토리 전체 JSON (`{ human: { maxSlot, slots[] }, cat: { ... } }`) |
 
 > 키 네임스페이스: `Login.*`, `Currency.*`, `Inventory.*`, `time_*`, `mini_*` 으로 도메인 분리.
 
@@ -197,14 +221,14 @@ Assets/
 │   ├── Fonts/               # Maplestory OTF Bold/Light SDF
 │   ├── Obstacle/            # 장애물 스프라이트 (18종)
 │   ├── Objects/             # Portal 이미지
-│   └── UI/                  # 팝업, 앱 아이콘, Quit, HumanCat_Title, HumanCat_Coin
+│   └── UI/                  # 팝업, 앱 아이콘, Quit, HumanCat_Title, HumanCat_Coin, InventoryIcon, ShopIcon
 ├── Editor/
 ├── Prefabs/
 │   ├── MiniGame/
 │   │   ├── Obstacles/       # Obstacle_0 ~ Obstacle_17
 │   │   └── FishCoin.prefab
 │   ├── Objects/             # 인테리어 가구 프리팹 (BookCase, CatBowl, Pot, Window 등 41종)
-│   └── UI/                  # ToMiniGame_Popup, Exit_Popup, ShopItemRow
+│   └── UI/                  # ToMiniGame_Popup, Exit_Popup, ShopItemRow, InventoryItemRow, InventoryPanel, SellPopup, UsePopup, CatShop, HumanShop
 ├── Resources/
 │   └── Items/               # ItemData ScriptableObject (자동 생성)
 ├── Scenes/
@@ -214,14 +238,14 @@ Assets/
 └── Scripts/
     ├── Characters/          # CharacterBase, Cat, Human 계층
     ├── Currency/            # CurrencyManager
-    ├── Editor/              # DebugMenu, ShopSetupBuilder, ItemDataBuilder
-    ├── Inventory/           # ItemData, InventoryManager
+    ├── Editor/              # DebugMenu, ShopSetupBuilder, ItemDataBuilder, InventorySetupBuilder
+    ├── Inventory/           # ItemData, InventoryManager, InventoryUI, InventoryItemRow, InventoryUIBootstrap, SellPopupUI, UsePopupUI
     ├── Login/               # LoginManager + Editor
     ├── MiniGame/            # 미니게임 로직 + FishCoinPickup, FishCoinSpawner
     │   └── Editor/          # MiniGameSceneBuilder
     ├── Shop/                # Shop, ShopTrigger, ShopUI, ShopItemRow, ShopUIBootstrap
     ├── Time/                # TimeManager
-    └── UI/                  # QuitButton, MiniGamePopup, TimeUI, CurrencyUI, ShelterNameDisplay
+    └── UI/                  # QuitButton, MiniGamePopup, TimeUI, CurrencyUI, ShelterNameDisplay, UIBlocker, InventoryOpenButton, ShopOpenButton
 ```
 
 ---
@@ -236,8 +260,14 @@ Unity 상단 메뉴 **HumanCat**에서 씬 설치/리셋을 자동화한다.
 | MiniGame → Setup Stat System | StatPanel / StatUI / StatManager 일괄 설치 |
 | MiniGame → Setup Time System | TimeManager / MorningPanel 설치 |
 | **Shop → Setup Objects_1_3 Shop** | Indoor 가구에 트리거 + Human/Cat Shop + [ UI ] 패널 + 부트스트랩 일괄 구축 |
+| **Shop → Apply Maplestory Fonts to ShopUI** | ShopUI 패널 + 행 프리팹의 모든 TMP_Text 에 한글 폰트 적용 |
+| **Shop → Mirror HumanShop Design to CatShop** | HumanShop 디자인을 CatShop 으로 복제 (슬롯은 자동으로 Shop_Cat 으로 재연결) |
+| **Inventory → Setup Inventory UI (ALL)** | InventoryPanel + SellPopup + UsePopup + 행 프리팹 + 부트스트랩 + LoginScene UIBlocker 일괄 구축 |
+| **Inventory → Setup GNB Icons (Inventory + Shop)** | GNB 좌하단 인벤토리 / 우하단 상점 아이콘 버튼 자동 배치 (이미지 적용 + 슬롯 연결) |
 | **Item → Generate ItemData from Prefabs/Objects** | `Assets/Prefabs/Objects` 의 모든 프리팹을 ItemData 자산으로 일괄 생성 (이미 있으면 스킵) |
 | **Debug → Reset All Save Data** | 모든 PlayerPrefs 일괄 삭제 (확인 다이얼로그) |
+| **Debug → Set Game Time to 17-50** | 게임 시간을 17:50 으로 설정 (Play 중이면 즉시, Edit 모드면 PlayerPrefs 갱신) |
+| **Debug → Add 1000 Fish + 1000 Gold** | 양쪽 재화에 +1000 (Play / Edit 모드 모두 동작) |
 
 각 매니저 우클릭 `Debug → Reset *` 컨텍스트 메뉴는 도메인별 부분 초기화에 사용.
 

@@ -20,6 +20,8 @@ using UnityEngine;
 [RequireComponent(typeof(HumanController))]
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
+
     [SerializeField] PlayerType startingType = PlayerType.Cat;
 
     InputReader             inputReader;
@@ -29,13 +31,26 @@ public class PlayerController : MonoBehaviour
     HumanController         humanController;
     CharacterControllerBase activeController;
     Camera                  mainCam;
+    bool                    inputEnabled = true;
 
     /// <summary>현재 활성 캐릭터 타입. 활성 컨트롤러가 없으면 Cat 으로 간주.</summary>
     public PlayerType CurrentType =>
         activeController == humanController ? PlayerType.Human : PlayerType.Cat;
 
+    /// <summary>탭 입력 처리 여부. UI 열림 시 false 로 설정해 이동 차단.</summary>
+    public bool InputEnabled => inputEnabled;
+
+    /// <summary>UI/Blocker 등에서 호출해 입력을 켜고 끈다. false 시 현재 이동도 즉시 정지.</summary>
+    public void SetInputEnabled(bool value)
+    {
+        if (inputEnabled == value) return;
+        inputEnabled = value;
+        if (!inputEnabled && mover != null) mover.Stop();
+    }
+
     void Awake()
     {
+        Instance        = this;
         inputReader     = GetComponent<InputReader>();
         mover           = GetComponent<PlayerMover>();
         playerAnimator  = GetComponent<PlayerAnimator>();
@@ -44,6 +59,11 @@ public class PlayerController : MonoBehaviour
 
         // Camera.main은 매 호출마다 FindObject를 수행하므로 Awake에서 캐싱.
         mainCam = Camera.main;
+    }
+
+    void OnDisable()
+    {
+        if (Instance == this) Instance = null;
     }
 
     void Start()
@@ -100,7 +120,7 @@ public class PlayerController : MonoBehaviour
 
     void OnTapInput(Vector2 screenPos)
     {
-        if (mainCam == null) return;
+        if (!inputEnabled || mainCam == null) return;
         mover.MoveTo(mainCam.ScreenToWorldPoint(screenPos));
     }
 

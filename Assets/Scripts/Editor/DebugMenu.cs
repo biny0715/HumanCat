@@ -42,4 +42,70 @@ public static class DebugMenu
                 "메모리에 로드된 매니저 값(레벨/재화 등)은 다음 Play 재시작에 반영됩니다.");
         }
     }
+
+    // ── 재화 강제 지급 ───────────────────────────────────────────────────
+
+    [MenuItem("HumanCat/Debug/Add 1000 Fish + 1000 Gold")]
+    public static void AddCoins()
+    {
+        const long delta = 1000;
+
+        if (EditorApplication.isPlaying && CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.Add(CurrencyType.Fish, delta);
+            CurrencyManager.Instance.Add(CurrencyType.Gold, delta);
+            Debug.Log("[DebugMenu] Fish +1000, Gold +1000 적용 (Play 중)");
+            return;
+        }
+
+        // Edit 모드: PlayerPrefs 직접 갱신. CurrencyManager 와 동일하게 string 으로 long 직렬화.
+        long fish = ReadLongPref(CurrencyManager.KeyFish) + delta;
+        long gold = ReadLongPref(CurrencyManager.KeyGold) + delta;
+        fish = ClampCurrency(fish);
+        gold = ClampCurrency(gold);
+        PlayerPrefs.SetString(CurrencyManager.KeyFish, fish.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        PlayerPrefs.SetString(CurrencyManager.KeyGold, gold.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        PlayerPrefs.Save();
+        Debug.Log($"[DebugMenu] Fish={fish:N0}, Gold={gold:N0} 저장 (다음 Play 시작 시 반영)");
+    }
+
+    static long ReadLongPref(string key)
+    {
+        string raw = PlayerPrefs.GetString(key, "0");
+        return long.TryParse(raw, System.Globalization.NumberStyles.Integer,
+                             System.Globalization.CultureInfo.InvariantCulture, out long v) ? v : 0;
+    }
+
+    static long ClampCurrency(long v)
+        => v < 0 ? 0 : (v > CurrencyManager.MaxValue ? CurrencyManager.MaxValue : v);
+
+    // ── 시간 강제 설정 ───────────────────────────────────────────────────
+
+    [MenuItem("HumanCat/Debug/Set Game Time to 17-50")]
+    public static void SetGameTimeTo1750() => SetGameTime(17, 50);
+
+    /// <summary>
+    /// 게임 시간을 (hour, minute)으로 설정.
+    /// - Play 중: 활성 TimeManager 에 즉시 적용 + 저장
+    /// - Edit 모드: PlayerPrefs(time_gameMinutes/time_saveTicks) 직접 갱신 → 다음 Play 시작 시 적용
+    /// </summary>
+    public static void SetGameTime(int hour, int minute)
+    {
+        float minutes = hour * 60f + minute;
+
+        if (EditorApplication.isPlaying && TimeManager.Instance != null)
+        {
+            TimeManager.Instance.SetTime(hour, minute);
+            TimeManager.Instance.Save();
+            Debug.Log($"[DebugMenu] 게임 시간 {hour:00}:{minute:00} 적용 (Play 중)");
+            return;
+        }
+
+        // Edit 모드 — PlayerPrefs 에 직접 기록. saveTicks 도 지금으로 갱신해
+        // TimeManager.Load() 의 오프라인 경과 계산이 0이 되도록 한다.
+        PlayerPrefs.SetFloat("time_gameMinutes", minutes);
+        PlayerPrefs.SetString("time_saveTicks", System.DateTime.UtcNow.Ticks.ToString());
+        PlayerPrefs.Save();
+        Debug.Log($"[DebugMenu] 게임 시간 {hour:00}:{minute:00} 저장 (다음 Play 시작 시 적용)");
+    }
 }

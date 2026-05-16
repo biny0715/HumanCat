@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,9 +16,12 @@ using TMPro;
 /// </summary>
 public static class ShopSetupBuilder
 {
-    const string TargetName = "Objects_1_3";
-    const string MainScene  = "Assets/Scenes/Main.unity";
-    const string UIRootName = "[ UI ]";
+    const string TargetName    = "Objects_1_3";
+    const string MainScene     = "Assets/Scenes/Main.unity";
+    const string UIRootName    = "[ UI ]";
+    const string FontBoldPath  = "Assets/Art/Fonts/Maplestory OTF Bold SDF.asset";
+    const string FontLightPath = "Assets/Art/Fonts/Maplestory OTF Light SDF.asset";
+    const string RowPrefabPath = "Assets/Prefabs/UI/ShopItemRow.prefab";
 
     [MenuItem("HumanCat/Shop/Setup Objects_1_3 Shop (Main scene)")]
     public static void SetupShopOnTarget()
@@ -44,7 +48,7 @@ public static class ShopSetupBuilder
         }
         else col.isTrigger = true;
 
-        var humanShop = EnsureShopChild(target, "Shop_Human", CurrencyType.Gold, "인간 상점");
+        var humanShop = EnsureShopChild(target, "Shop_Human", CurrencyType.Gold, "일반 상점");
         var catShop   = EnsureShopChild(target, "Shop_Cat",   CurrencyType.Fish, "고양이 상점");
 
         var trigger = target.GetComponent<ShopTrigger>() ?? target.AddComponent<ShopTrigger>();
@@ -108,9 +112,14 @@ public static class ShopSetupBuilder
         if (existing != null)
         {
             panel = existing.gameObject;
-            // 기존 자식 정리 (재생성)
+            // 자동 생성된 자식만 정리 (사용자가 추가한 자식 보존)
+            string[] autoNames = { "Title", "CurrencyHint", "ItemListContent", "CloseButton", "Nav" };
             for (int i = panel.transform.childCount - 1; i >= 0; i--)
-                Object.DestroyImmediate(panel.transform.GetChild(i).gameObject);
+            {
+                var c = panel.transform.GetChild(i);
+                foreach (var n in autoNames)
+                    if (c.name == n) { Object.DestroyImmediate(c.gameObject); break; }
+            }
         }
         else
         {
@@ -118,62 +127,50 @@ public static class ShopSetupBuilder
             var rt = panel.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(540, 720);
+            rt.sizeDelta = new Vector2(720, 1100);   // 모바일 세로 화면용 크게
             rt.anchoredPosition = Vector2.zero;
             var img = panel.AddComponent<Image>();
             img.color = new Color(0.1f, 0.1f, 0.12f, 0.95f);
         }
 
-        // Title
+        // Title (상단 100px) — 검은색
         var title = NewUI("Title", panel.transform);
         var titleRt = title.GetComponent<RectTransform>();
         titleRt.anchorMin = new Vector2(0, 1);
         titleRt.anchorMax = new Vector2(1, 1);
         titleRt.pivot = new Vector2(0.5f, 1f);
-        titleRt.sizeDelta = new Vector2(0, 60);
-        titleRt.anchoredPosition = Vector2.zero;
+        titleRt.sizeDelta = new Vector2(0, 100);
+        titleRt.anchoredPosition = new Vector2(0, -35);
         var titleTmp = title.AddComponent<TextMeshProUGUI>();
         titleTmp.text = sourceShop.ShopName;
-        titleTmp.fontSize = 32;
+        titleTmp.fontSize = 56;
         titleTmp.alignment = TextAlignmentOptions.Center;
-        titleTmp.color = Color.white;
+        titleTmp.color = new Color(0.10f, 0.06f, 0.03f); // 진한 갈색에 가까운 검정
 
-        // CurrencyHint
-        var hint = NewUI("CurrencyHint", panel.transform);
-        var hintRt = hint.GetComponent<RectTransform>();
-        hintRt.anchorMin = new Vector2(0, 1);
-        hintRt.anchorMax = new Vector2(1, 1);
-        hintRt.pivot = new Vector2(0.5f, 1f);
-        hintRt.sizeDelta = new Vector2(0, 40);
-        hintRt.anchoredPosition = new Vector2(0, -62);
-        var hintTmp = hint.AddComponent<TextMeshProUGUI>();
-        hintTmp.text = "보유 : --";
-        hintTmp.fontSize = 22;
-        hintTmp.alignment = TextAlignmentOptions.Center;
-        hintTmp.color = new Color(1f, 0.85f, 0.4f);
-
-        // Content
+        // ItemListContent (행 6개에 맞게 영역 — 행 110*6 + spacing 14*5 = 730)
         var content = NewUI("ItemListContent", panel.transform);
         var contentRt = content.GetComponent<RectTransform>();
         contentRt.anchorMin = new Vector2(0, 0);
         contentRt.anchorMax = new Vector2(1, 1);
-        contentRt.offsetMin = new Vector2(20, 80);
-        contentRt.offsetMax = new Vector2(-20, -110);
+        contentRt.offsetMin = new Vector2(48, 130);   // Nav 위 안전 거리
+        contentRt.offsetMax = new Vector2(-48, -210); // height ≈ 760 (6행+여유)
         var vlg = content.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 8;
+        vlg.spacing = 14;
+        vlg.padding = new RectOffset(0, 0, 0, 0);
+        vlg.childAlignment = TextAnchor.UpperCenter;   // 위에서부터 정렬 — 적게 남으면 아래 공백
         vlg.childForceExpandWidth  = true;
-        vlg.childForceExpandHeight = false;
+        vlg.childForceExpandHeight = false;            // 높이 강제 확장 안 함
         vlg.childControlWidth      = true;
-        vlg.childControlHeight     = true;
+        vlg.childControlHeight     = false;            // 높이는 행 LayoutElement 가 결정
 
-        // Close
+        // Close (우상단, 패널 안쪽 여백 확보)
         var close = NewUI("CloseButton", panel.transform);
         var closeRt = close.GetComponent<RectTransform>();
         closeRt.anchorMin = new Vector2(1, 1);
         closeRt.anchorMax = new Vector2(1, 1);
         closeRt.pivot = new Vector2(1, 1);
-        closeRt.sizeDelta = new Vector2(60, 60);
-        closeRt.anchoredPosition = new Vector2(-8, -8);
+        closeRt.sizeDelta = new Vector2(70, 70);
+        closeRt.anchoredPosition = new Vector2(-60, -45);
         var closeImg = close.AddComponent<Image>();
         closeImg.color = new Color(0.4f, 0.1f, 0.1f, 1f);
         var closeBtn = close.AddComponent<Button>();
@@ -185,23 +182,77 @@ public static class ShopSetupBuilder
         closeLabelRt.offsetMax = Vector2.zero;
         var closeLabelTmp = closeLabel.AddComponent<TextMeshProUGUI>();
         closeLabelTmp.text = "X";
-        closeLabelTmp.fontSize = 28;
+        closeLabelTmp.fontSize = 44;
         closeLabelTmp.alignment = TextAlignmentOptions.Center;
         closeLabelTmp.color = Color.white;
 
-        // ShopUI 컴포넌트
+        // Nav (하단, Prev / PageIndicator / Next) — 갈색 톤
+        var nav = NewUI("Nav", panel.transform);
+        var navRt = nav.GetComponent<RectTransform>();
+        navRt.anchorMin = new Vector2(0, 0);
+        navRt.anchorMax = new Vector2(1, 0);
+        navRt.pivot = new Vector2(0.5f, 0);
+        navRt.sizeDelta = new Vector2(0, 100);
+        navRt.anchoredPosition = new Vector2(0, 20);   // 패널 하단 가까이
+
+        var prevBtn = MakeNavButton(nav.transform, "PrevButton", "◀", new Vector2(0, 0.5f), new Vector2(80, 15));
+        var pageInd = NewUI("PageIndicator", nav.transform);
+        var pageRt = pageInd.GetComponent<RectTransform>();
+        pageRt.anchorMin = new Vector2(0.5f, 0.5f);
+        pageRt.anchorMax = new Vector2(0.5f, 0.5f);
+        pageRt.pivot = new Vector2(0.5f, 0.5f);
+        pageRt.sizeDelta = new Vector2(220, 80);
+        pageRt.anchoredPosition = Vector2.zero;
+        var pageTmp = pageInd.AddComponent<TextMeshProUGUI>();
+        pageTmp.text = "1 / 1";
+        pageTmp.fontSize = 36;
+        pageTmp.alignment = TextAlignmentOptions.Center;
+        pageTmp.color = new Color(0.20f, 0.12f, 0.04f); // 진한 갈색
+        var nextBtn = MakeNavButton(nav.transform, "NextButton", "▶", new Vector2(1, 0.5f), new Vector2(-80, 15));
+
+        // ShopUI 컴포넌트 (CurrencyHint 제거 — null 유지)
         var ui = panel.GetComponent<ShopUI>() ?? panel.AddComponent<ShopUI>();
         var so = new SerializedObject(ui);
-        so.FindProperty("shop").objectReferenceValue            = sourceShop;
-        so.FindProperty("itemListContent").objectReferenceValue = content.transform;
-        so.FindProperty("itemRowPrefab").objectReferenceValue   = rowPrefab;
-        so.FindProperty("titleText").objectReferenceValue       = titleTmp;
-        so.FindProperty("currencyHintText").objectReferenceValue = hintTmp;
-        so.FindProperty("closeButton").objectReferenceValue     = closeBtn;
+        so.FindProperty("shop").objectReferenceValue              = sourceShop;
+        so.FindProperty("itemListContent").objectReferenceValue   = content.transform;
+        so.FindProperty("itemRowPrefab").objectReferenceValue     = rowPrefab;
+        so.FindProperty("itemsPerPage").intValue                  = 6;
+        so.FindProperty("titleText").objectReferenceValue         = titleTmp;
+        so.FindProperty("currencyHintText").objectReferenceValue  = null;
+        so.FindProperty("closeButton").objectReferenceValue       = closeBtn;
+        so.FindProperty("prevButton").objectReferenceValue        = prevBtn;
+        so.FindProperty("nextButton").objectReferenceValue        = nextBtn;
+        so.FindProperty("pageIndicatorText").objectReferenceValue = pageTmp;
         so.ApplyModifiedPropertiesWithoutUndo();
 
-        panel.SetActive(false); // 비활성으로 시작 — 부트스트랩이 Initialize() 호출
+        panel.SetActive(false);
         return ui;
+    }
+
+    static Button MakeNavButton(Transform parent, string name, string label, Vector2 anchor, Vector2 anchoredPos)
+    {
+        var go = NewUI(name, parent);
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = anchor;
+        rt.anchorMax = anchor;
+        rt.pivot     = new Vector2(anchor.x, 0.5f);
+        rt.sizeDelta = new Vector2(110, 92);
+        rt.anchoredPosition = anchoredPos;
+        var img = go.AddComponent<Image>();
+        img.color = new Color(0.55f, 0.35f, 0.18f, 1f); // 갈색 톤
+        var btn = go.AddComponent<Button>();
+        var labelGo = NewUI("Label", go.transform);
+        var labelRt = labelGo.GetComponent<RectTransform>();
+        labelRt.anchorMin = Vector2.zero;
+        labelRt.anchorMax = Vector2.one;
+        labelRt.offsetMin = Vector2.zero;
+        labelRt.offsetMax = Vector2.zero;
+        var tmp = labelGo.AddComponent<TextMeshProUGUI>();
+        tmp.text = label;
+        tmp.fontSize = 40;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.color = Color.white;
+        return btn;
     }
 
     // ── Bootstrap GameObject ─────────────────────────────────────────────
@@ -236,18 +287,26 @@ public static class ShopSetupBuilder
         if (!AssetDatabase.IsValidFolder(folder))
             AssetDatabase.CreateFolder("Assets/Prefabs", "UI");
 
-        var existing = AssetDatabase.LoadAssetAtPath<ShopItemRow>(path);
-        if (existing != null) return existing;
+        // 기존 프리팹이 있으면 강제 삭제 후 새 크기로 재생성
+        var existingAsset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        if (existingAsset != null)
+            AssetDatabase.DeleteAsset(path);
 
         var row = NewUI("ShopItemRow", null);
         var rt = row.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(0, 64);
+        rt.sizeDelta = new Vector2(0, 110);
         var bg = row.AddComponent<Image>();
-        bg.color = new Color(0.18f, 0.18f, 0.22f, 1f);
+        bg.color = new Color(0.82f, 0.68f, 0.46f, 1f); // 패널과 어울리는 따뜻한 베이지/갈색
+
+        // 부모 VerticalLayoutGroup 이 자식 적을 때 늘리지 못하도록 LayoutElement 로 높이 고정
+        var rowLE = row.AddComponent<LayoutElement>();
+        rowLE.minHeight       = 110;
+        rowLE.preferredHeight = 110;
+        rowLE.flexibleHeight  = 0;
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.padding = new RectOffset(8, 8, 4, 4);
-        hlg.spacing = 8;
+        hlg.padding = new RectOffset(16, 16, 8, 8);
+        hlg.spacing = 14;
         hlg.childForceExpandWidth = false;
         hlg.childForceExpandHeight = true;
         hlg.childControlWidth = true;
@@ -256,7 +315,7 @@ public static class ShopSetupBuilder
 
         var icon = NewUI("Icon", row.transform);
         var iconLE = icon.AddComponent<LayoutElement>();
-        iconLE.preferredWidth = 56; iconLE.preferredHeight = 56;
+        iconLE.preferredWidth = 90; iconLE.preferredHeight = 90;
         var iconImg = icon.AddComponent<Image>();
         iconImg.color = Color.white;
 
@@ -265,24 +324,24 @@ public static class ShopSetupBuilder
         nameLE.flexibleWidth = 1;
         var nameTmp = name.AddComponent<TextMeshProUGUI>();
         nameTmp.text = "이름";
-        nameTmp.fontSize = 22;
-        nameTmp.color = Color.white;
+        nameTmp.fontSize = 36;
+        nameTmp.color = new Color(0.15f, 0.08f, 0.02f); // 진갈색
         nameTmp.alignment = TextAlignmentOptions.MidlineLeft;
 
         var price = NewUI("Price", row.transform);
         var priceLE = price.AddComponent<LayoutElement>();
-        priceLE.preferredWidth = 110;
+        priceLE.preferredWidth = 160;
         var priceTmp = price.AddComponent<TextMeshProUGUI>();
         priceTmp.text = "0 G";
-        priceTmp.fontSize = 22;
-        priceTmp.color = new Color(1f, 0.85f, 0.4f);
+        priceTmp.fontSize = 32;
+        priceTmp.color = new Color(0.50f, 0.25f, 0.05f); // 진주황/갈색
         priceTmp.alignment = TextAlignmentOptions.MidlineRight;
 
         var buy = NewUI("BuyButton", row.transform);
         var buyLE = buy.AddComponent<LayoutElement>();
-        buyLE.preferredWidth = 90;
+        buyLE.preferredWidth = 140;
         var buyImg = buy.AddComponent<Image>();
-        buyImg.color = new Color(0.2f, 0.45f, 0.25f, 1f);
+        buyImg.color = new Color(0.55f, 0.35f, 0.18f, 1f); // 갈색 (Nav 와 통일)
         var buyBtn = buy.AddComponent<Button>();
         var buyLabel = NewUI("Label", buy.transform);
         var buyLabelRt = buyLabel.GetComponent<RectTransform>();
@@ -292,7 +351,7 @@ public static class ShopSetupBuilder
         buyLabelRt.offsetMax = Vector2.zero;
         var buyLabelTmp = buyLabel.AddComponent<TextMeshProUGUI>();
         buyLabelTmp.text = "구매";
-        buyLabelTmp.fontSize = 20;
+        buyLabelTmp.fontSize = 32;
         buyLabelTmp.color = Color.white;
         buyLabelTmp.alignment = TextAlignmentOptions.Center;
 
@@ -307,6 +366,146 @@ public static class ShopSetupBuilder
         var prefab = PrefabUtility.SaveAsPrefabAsset(row, path);
         Object.DestroyImmediate(row);
         return prefab.GetComponent<ShopItemRow>();
+    }
+
+    // ── 폰트 일괄 적용 ────────────────────────────────────────────────────
+
+    [MenuItem("HumanCat/Shop/Apply Maplestory Fonts to ShopUI")]
+    public static void ApplyMaplestoryFonts()
+    {
+        var active = EditorSceneManager.GetActiveScene();
+        if (active.path != MainScene)
+            EditorSceneManager.OpenScene(MainScene, OpenSceneMode.Single);
+
+        var bold  = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontBoldPath);
+        var light = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontLightPath);
+        if (bold == null || light == null)
+        {
+            Debug.LogError("[ShopSetupBuilder] Maplestory 폰트 자산을 찾을 수 없음. 경로 확인.");
+            return;
+        }
+
+        // 1) 씬의 ShopUI 패널들 (Title=Bold, 나머지=Light)
+        int sceneChanged = 0;
+        foreach (var ui in Object.FindObjectsByType<ShopUI>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            foreach (var t in ui.GetComponentsInChildren<TMP_Text>(true))
+            {
+                t.font = t.name == "Title" ? bold : light;
+                EditorUtility.SetDirty(t);
+                sceneChanged++;
+            }
+        }
+
+        // 2) ShopItemRow 프리팹 (Name/Price/Label 모두 Light)
+        int prefabChanged = 0;
+        var rowPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(RowPrefabPath);
+        if (rowPrefab != null)
+        {
+            var contents = PrefabUtility.LoadPrefabContents(RowPrefabPath);
+            foreach (var t in contents.GetComponentsInChildren<TMP_Text>(true))
+            {
+                t.font = light;
+                prefabChanged++;
+            }
+            PrefabUtility.SaveAsPrefabAsset(contents, RowPrefabPath);
+            PrefabUtility.UnloadPrefabContents(contents);
+        }
+
+        EditorSceneManager.MarkSceneDirty(active);
+        AssetDatabase.SaveAssets();
+        Debug.Log($"[ShopSetupBuilder] 폰트 적용 완료 — 씬 텍스트:{sceneChanged}, ShopItemRow 프리팹 텍스트:{prefabChanged}. Ctrl+S 로 씬 저장하세요.");
+    }
+
+    // ── HumanShop → CatShop 미러링 ────────────────────────────────────────
+
+    [MenuItem("HumanCat/Shop/Mirror HumanShop Design to CatShop")]
+    public static void MirrorHumanShopToCatShop()
+    {
+        var active = EditorSceneManager.GetActiveScene();
+        if (active.path != MainScene)
+            EditorSceneManager.OpenScene(MainScene, OpenSceneMode.Single);
+
+        var uiRoot = FindInSceneIncludingInactive(UIRootName);
+        if (uiRoot == null) { Debug.LogError("[ShopSetupBuilder] '[ UI ]' 없음"); return; }
+
+        var human  = uiRoot.transform.Find("HumanShop");
+        var oldCat = uiRoot.transform.Find("CatShop");
+        if (human == null) { Debug.LogError("[ShopSetupBuilder] HumanShop 없음 — 먼저 Setup 실행 필요"); return; }
+
+        // 1) 기존 CatShop / ShopTrigger 에서 Shop_Cat 참조 확보
+        Shop catShop = ResolveShopReference(oldCat, "catShop");
+        if (catShop == null)
+        {
+            Debug.LogError("[ShopSetupBuilder] Shop_Cat 참조를 찾을 수 없음. ShopTrigger 또는 기존 CatShop 확인.");
+            return;
+        }
+
+        // 2) 기존 CatShop 위치(sibling index) 보존 후 삭제
+        int siblingIdx = oldCat != null ? oldCat.GetSiblingIndex() : -1;
+        if (oldCat != null) Object.DestroyImmediate(oldCat.gameObject);
+
+        // 3) HumanShop 복제 → CatShop 이름
+        var newCatGo = Object.Instantiate(human.gameObject, uiRoot.transform);
+        newCatGo.name = "CatShop";
+        if (siblingIdx >= 0) newCatGo.transform.SetSiblingIndex(siblingIdx);
+        newCatGo.SetActive(false); // 닫힘 상태로 유지
+
+        // 4) ShopUI.shop 재연결 + Title 텍스트 갱신
+        var newUi = newCatGo.GetComponent<ShopUI>();
+        if (newUi != null)
+        {
+            var so = new SerializedObject(newUi);
+            so.FindProperty("shop").objectReferenceValue = catShop;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+        var titleTr = newCatGo.transform.Find("Title");
+        if (titleTr != null)
+        {
+            var tmp = titleTr.GetComponent<TMP_Text>();
+            if (tmp != null) tmp.text = catShop.ShopName;
+        }
+
+        // 5) ShopUIBootstrap.panels[0]=HumanShop, [1]=CatShop 으로 재정렬
+        RewireBootstrap(uiRoot.transform, human.GetComponent<ShopUI>(), newUi);
+
+        EditorSceneManager.MarkSceneDirty(active);
+        Debug.Log($"[ShopSetupBuilder] CatShop 미러링 완료 (shop='{catShop.ShopName}'). Ctrl+S 로 저장하세요.");
+    }
+
+    static Shop ResolveShopReference(Transform oldCat, string triggerFieldName)
+    {
+        if (oldCat != null)
+        {
+            var ui = oldCat.GetComponent<ShopUI>();
+            if (ui != null)
+            {
+                var so = new SerializedObject(ui);
+                var s = so.FindProperty("shop").objectReferenceValue as Shop;
+                if (s != null) return s;
+            }
+        }
+        var trig = Object.FindFirstObjectByType<ShopTrigger>();
+        if (trig != null)
+        {
+            var so = new SerializedObject(trig);
+            return so.FindProperty(triggerFieldName).objectReferenceValue as Shop;
+        }
+        return null;
+    }
+
+    static void RewireBootstrap(Transform uiParent, ShopUI human, ShopUI cat)
+    {
+        var bootTr = uiParent.Find("ShopUIBootstrap");
+        if (bootTr == null) return;
+        var boot = bootTr.GetComponent<ShopUIBootstrap>();
+        if (boot == null) return;
+        var so = new SerializedObject(boot);
+        var prop = so.FindProperty("panels");
+        prop.arraySize = 2;
+        prop.GetArrayElementAtIndex(0).objectReferenceValue = human;
+        prop.GetArrayElementAtIndex(1).objectReferenceValue = cat;
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

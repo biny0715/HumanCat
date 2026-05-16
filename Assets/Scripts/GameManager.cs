@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        // DontDestroyOnLoad 는 root GameObject 에만 적용된다 — 자식이면 강제 승격.
+        if (transform.parent != null) transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
 
         // 앱 재실행 시 저장된 상태 복원.

@@ -36,6 +36,7 @@ public class CurrencyManager : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        if (transform.parent != null) transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
 
         // Awake 단계에서 로드 → 다른 컴포넌트의 Start/OnEnable 가 안전하게 값 읽음.

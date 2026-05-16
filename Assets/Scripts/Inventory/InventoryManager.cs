@@ -15,7 +15,7 @@ public class InventorySlot
     public InventorySlot(string id, int c) { itemId = id; count = c; }
 }
 
-/// <summary>JsonUtility 저장용 컨테이너.</summary>
+/// <summary>JsonUtility 저장용 컨테이너. 한 캐릭터분의 인벤토리.</summary>
 [Serializable]
 public class InventoryData
 {
@@ -23,16 +23,24 @@ public class InventoryData
     public List<InventorySlot> slots   = new List<InventorySlot>();
 }
 
+/// <summary>저장 파일 최상위. Human/Cat 각각 별도 인벤토리를 보관.</summary>
+[Serializable]
+public class InventorySaveData
+{
+    public InventoryData human = new InventoryData();
+    public InventoryData cat   = new InventoryData();
+}
+
 /// <summary>
 /// 인벤토리 매니저 (싱글톤, DontDestroyOnLoad).
 ///
 /// [설계 의도]
-/// - 상점/드롭/제작 등 모든 아이템 획득 경로의 진입점.
-/// - 슬롯 = "한 칸". 스택 아이템은 같은 ID가 모이고, 비스택은 1개당 1칸.
-/// - 저장은 PlayerPrefs(JSON) 단일 키 사용 (Inventory.Data) — 다른 매니저 키와 충돌 없음.
-/// - 데이터 안정성: 로드 시 등록되지 않은 itemId 는 정합성 정리 단계에서 제거.
-/// - 확장성: maxSlot 은 인벤토리 데이터에 포함되어 영구 저장. 상점에서 '슬롯 확장권'으로
-///   ExpandMaxSlot(delta) 호출만 하면 됨.
+/// - Human / Cat 두 캐릭터가 각자 독립 인벤토리를 가진다.
+/// - PlayerController.CurrentType 으로 "현재 인벤토리" 결정. Day/Night 전환 시 자동으로 따라감.
+/// - TryAddItem 등 기본 API 는 현재 인벤토리에 작용. 특정 타입을 명시하려면
+///   TryAddItemFor(PlayerType, ...) 사용.
+/// - JsonUtility 단일 키 저장 (Inventory.Data) — 내부에 InventorySaveData 통째로 직렬화.
+/// - GameManager.OnStateChanged 구독으로 캐릭터 전환 시 OnInventoryChanged 발행 → UI 자동 갱신.
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
@@ -40,24 +48,31 @@ public class InventoryManager : MonoBehaviour
 
     public const string SaveKey         = "Inventory.Data";
     public const int    DefaultMaxSlot  = 100;
-    public const int    HardMaxSlot     = 999;   // 영구 상한 (확장권 누적 안전망)
+    public const int    HardMaxSlot     = 999;
 
     [Header("Bootstrap")]
     [Tooltip("Resources 하위에서 ItemData 자산을 스캔할 폴더. 기본 'Items'.")]
     [SerializeField] string resourcesItemFolder = "Items";
 
-    InventoryData                 data;
+    InventorySaveData             save;
     Dictionary<string, ItemData>  registry;
 
-    /// <summary>인벤토리 내용이 변할 때(추가/삭제/슬롯 확장) 호출.</summary>
+    /// <summary>현재 인벤토리(추가/삭제/슬롯 확장 또는 캐릭터 전환) 가 변할 때 호출.</summary>
     public event Action OnInventoryChanged;
 
-    // ── 읽기 전용 프로퍼티 ────────────────────────────────────────────────
+    // ── 읽기 전용 프로퍼티 (현재 인벤토리 기준) ──────────────────────────
 
-    public int  MaxSlot    => data.maxSlot;
-    public int  UsedSlots  => data.slots.Count;
+    public int  MaxSlot    => Current.maxSlot;
+    public int  UsedSlots  => Current.slots.Count;
     public bool IsFull     => UsedSlots >= MaxSlot;
-    public IReadOnlyList<InventorySlot> Slots => data.slots;
+    public IReadOnlyList<InventorySlot> Slots => Current.slots;
+
+    /// <summary>현재 활성 캐릭터의 InventoryData. PlayerController 없으면 Human 기본.</summary>
+    public InventoryData Current => GetInventory(ResolveCurrentType());
+
+    /// <summary>지정한 캐릭터의 InventoryData 조회.</summary>
+    public InventoryData GetInventory(PlayerType type)
+        => type == PlayerType.Human ? save.human : save.cat;
 
     // ── 생명주기 ──────────────────────────────────────────────────────────
 
@@ -65,11 +80,31 @@ public class InventoryManager : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        if (transform.parent != null) transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
 
         LoadRegistry();
         Load();
     }
+
+    void Start()
+    {
+        // 캐릭터 전환 → 현재 인벤토리도 바뀌므로 UI 새로고침을 위해 이벤트 발행
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnStateChanged += HandleStateChanged;
+    }
+
+    void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnStateChanged -= HandleStateChanged;
+        if (Instance == this) Instance = null;
+    }
+
+    void HandleStateChanged(GameState _) => OnInventoryChanged?.Invoke();
+
+    static PlayerType ResolveCurrentType()
+        => PlayerController.Instance != null ? PlayerController.Instance.CurrentType : PlayerType.Human;
 
     // ── 아이템 정의 조회 ──────────────────────────────────────────────────
 
@@ -97,21 +132,29 @@ public class InventoryManager : MonoBehaviour
     public ItemData GetItem(string itemId)
         => registry != null && itemId != null && registry.TryGetValue(itemId, out var a) ? a : null;
 
-    // ── 퍼블릭 API ────────────────────────────────────────────────────────
+    // ── 퍼블릭 API (현재 인벤토리) ────────────────────────────────────────
 
-    /// <summary>이 아이템을 count 만큼 더 담을 수 있는지. 슬롯/스택 제약 모두 검사.</summary>
-    public bool CanAddItem(string itemId, int count)
+    public bool CanAddItem(string itemId, int count) => CanAddItemFor(ResolveCurrentType(), itemId, count);
+    public bool TryAddItem(string itemId, int count) => TryAddItemFor(ResolveCurrentType(), itemId, count);
+    public bool TryRemoveItem(string itemId, int count) => TryRemoveItemFor(ResolveCurrentType(), itemId, count);
+    public int  GetCount(string itemId) => GetCountFor(ResolveCurrentType(), itemId);
+
+    public void ExpandMaxSlot(int delta) => ExpandMaxSlotFor(ResolveCurrentType(), delta);
+
+    // ── 퍼블릭 API (특정 캐릭터 지정) ─────────────────────────────────────
+
+    public bool CanAddItemFor(PlayerType type, string itemId, int count)
     {
         if (count <= 0) return false;
         var def = GetItem(itemId);
         if (def == null) return false;
+        var inv = GetInventory(type);
 
         int max = def.MaxStack;
-
         if (def.Stackable)
         {
             int remaining = count;
-            foreach (var s in data.slots)
+            foreach (var s in inv.slots)
             {
                 if (s.itemId != itemId) continue;
                 int room = max - s.count;
@@ -119,25 +162,22 @@ public class InventoryManager : MonoBehaviour
                 if (remaining <= 0) return true;
             }
             int newSlotsNeeded = Mathf.CeilToInt(remaining / (float)max);
-            return UsedSlots + newSlotsNeeded <= MaxSlot;
+            return inv.slots.Count + newSlotsNeeded <= inv.maxSlot;
         }
-        else
-        {
-            return UsedSlots + count <= MaxSlot;
-        }
+        return inv.slots.Count + count <= inv.maxSlot;
     }
 
-    /// <summary>아이템 추가 시도. 공간 부족 시 false(원상 유지).</summary>
-    public bool TryAddItem(string itemId, int count)
+    public bool TryAddItemFor(PlayerType type, string itemId, int count)
     {
-        if (!CanAddItem(itemId, count)) return false;
+        if (!CanAddItemFor(type, itemId, count)) return false;
         var def = GetItem(itemId);
+        var inv = GetInventory(type);
         int max = def.MaxStack;
 
         if (def.Stackable)
         {
             int remaining = count;
-            foreach (var s in data.slots)
+            foreach (var s in inv.slots)
             {
                 if (remaining <= 0) break;
                 if (s.itemId != itemId) continue;
@@ -150,14 +190,14 @@ public class InventoryManager : MonoBehaviour
             while (remaining > 0)
             {
                 int add = Mathf.Min(max, remaining);
-                data.slots.Add(new InventorySlot(itemId, add));
+                inv.slots.Add(new InventorySlot(itemId, add));
                 remaining -= add;
             }
         }
         else
         {
             for (int i = 0; i < count; i++)
-                data.slots.Add(new InventorySlot(itemId, 1));
+                inv.slots.Add(new InventorySlot(itemId, 1));
         }
 
         Save();
@@ -165,43 +205,42 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>아이템 차감 시도. 수량 부족 시 false(원상 유지).</summary>
-    public bool TryRemoveItem(string itemId, int count)
+    public bool TryRemoveItemFor(PlayerType type, string itemId, int count)
     {
         if (count <= 0) return false;
-        if (GetCount(itemId) < count) return false;
+        if (GetCountFor(type, itemId) < count) return false;
+        var inv = GetInventory(type);
 
         int remaining = count;
-        for (int i = data.slots.Count - 1; i >= 0 && remaining > 0; i--)
+        for (int i = inv.slots.Count - 1; i >= 0 && remaining > 0; i--)
         {
-            var s = data.slots[i];
+            var s = inv.slots[i];
             if (s.itemId != itemId) continue;
             int take = Mathf.Min(s.count, remaining);
             s.count -= take;
             remaining -= take;
-            if (s.count <= 0) data.slots.RemoveAt(i);
+            if (s.count <= 0) inv.slots.RemoveAt(i);
         }
         Save();
         OnInventoryChanged?.Invoke();
         return true;
     }
 
-    /// <summary>해당 아이템 총 보유 수량 (모든 슬롯 합산).</summary>
-    public int GetCount(string itemId)
+    public int GetCountFor(PlayerType type, string itemId)
     {
         int total = 0;
-        foreach (var s in data.slots)
+        foreach (var s in GetInventory(type).slots)
             if (s.itemId == itemId) total += s.count;
         return total;
     }
 
-    /// <summary>최대 슬롯 확장 (상점 '슬롯 확장권' 등에서 호출). 0 이하 무시, 하드 상한 적용.</summary>
-    public void ExpandMaxSlot(int delta)
+    public void ExpandMaxSlotFor(PlayerType type, int delta)
     {
         if (delta <= 0) return;
-        int before = data.maxSlot;
-        data.maxSlot = Mathf.Min(data.maxSlot + delta, HardMaxSlot);
-        if (data.maxSlot == before) return;
+        var inv = GetInventory(type);
+        int before = inv.maxSlot;
+        inv.maxSlot = Mathf.Min(inv.maxSlot + delta, HardMaxSlot);
+        if (inv.maxSlot == before) return;
         Save();
         OnInventoryChanged?.Invoke();
     }
@@ -210,7 +249,7 @@ public class InventoryManager : MonoBehaviour
 
     void Save()
     {
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(save));
         PlayerPrefs.Save();
     }
 
@@ -219,46 +258,53 @@ public class InventoryManager : MonoBehaviour
         string raw = PlayerPrefs.GetString(SaveKey, null);
         if (string.IsNullOrEmpty(raw))
         {
-            data = new InventoryData();
+            save = new InventorySaveData();
             return;
         }
         try
         {
-            data = JsonUtility.FromJson<InventoryData>(raw) ?? new InventoryData();
+            save = JsonUtility.FromJson<InventorySaveData>(raw) ?? new InventorySaveData();
         }
         catch
         {
             Debug.LogWarning("[Inventory] 저장 데이터 파싱 실패 — 초기화");
-            data = new InventoryData();
+            save = new InventorySaveData();
             return;
         }
 
-        if (data.slots == null)    data.slots   = new List<InventorySlot>();
-        if (data.maxSlot <= 0)     data.maxSlot = DefaultMaxSlot;
+        if (save.human == null) save.human = new InventoryData();
+        if (save.cat   == null) save.cat   = new InventoryData();
+        Sanitize(save.human);
+        Sanitize(save.cat);
+    }
 
-        // 등록 안 된 itemId / 잘못된 count 정리
-        int before = data.slots.Count;
-        data.slots.RemoveAll(s => s == null || s.count <= 0 || GetItem(s.itemId) == null);
-        if (data.slots.Count != before)
-            Debug.LogWarning($"[Inventory] 무효 슬롯 {before - data.slots.Count}개 정리됨");
+    void Sanitize(InventoryData inv)
+    {
+        if (inv.slots == null) inv.slots = new List<InventorySlot>();
+        if (inv.maxSlot <= 0)  inv.maxSlot = DefaultMaxSlot;
+        int before = inv.slots.Count;
+        inv.slots.RemoveAll(s => s == null || s.count <= 0 || GetItem(s.itemId) == null);
+        if (inv.slots.Count != before)
+            Debug.LogWarning($"[Inventory] 무효 슬롯 {before - inv.slots.Count}개 정리됨");
     }
 
 #if UNITY_EDITOR
-    [ContextMenu("Debug → Reset Inventory")]
+    [ContextMenu("Debug → Reset Inventory (Both)")]
     void ResetInventory()
     {
         PlayerPrefs.DeleteKey(SaveKey);
-        data = new InventoryData();
+        save = new InventorySaveData();
         OnInventoryChanged?.Invoke();
-        Debug.Log("[Inventory] 인벤토리 초기화 완료");
+        Debug.Log("[Inventory] Human/Cat 인벤토리 모두 초기화 완료");
     }
 
-    [ContextMenu("Debug → Print Inventory")]
+    [ContextMenu("Debug → Print Inventory (Both)")]
     void PrintInventory()
     {
-        Debug.Log($"[Inventory] maxSlot={MaxSlot}, used={UsedSlots}");
-        foreach (var s in data.slots)
-            Debug.Log($"  - {s.itemId} x{s.count}");
+        Debug.Log($"[Inventory.Human] maxSlot={save.human.maxSlot}, used={save.human.slots.Count}");
+        foreach (var s in save.human.slots) Debug.Log($"  H - {s.itemId} x{s.count}");
+        Debug.Log($"[Inventory.Cat] maxSlot={save.cat.maxSlot}, used={save.cat.slots.Count}");
+        foreach (var s in save.cat.slots) Debug.Log($"  C - {s.itemId} x{s.count}");
     }
 #endif
 }
