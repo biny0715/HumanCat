@@ -26,7 +26,7 @@ public static class MiniGameSceneBuilder
             AssetDatabase.CreateFolder("Assets/Prefabs", "MiniGame");
         }
 
-        // 임시 GameObject 구성
+        // 임시 GameObject 구성. 크기 조정은 디자이너가 프리팹에서 직접 관리하도록 코드가 강제하지 않는다.
         var go = new GameObject("FishCoin");
         try
         {

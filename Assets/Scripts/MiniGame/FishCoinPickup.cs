@@ -25,7 +25,8 @@ public class FishCoinPickup : MonoBehaviour
     {
         if (other.GetComponent<MiniGamePlayer>() == null) return;
 
-        CurrencyManager.Instance?.Add(CurrencyType.Fish, amount);
+        // 즉시 지급하지 않고 세션 누적 → 게임 종료(Success/Fail) 시 일괄 지급.
+        MiniGameManager.Instance?.AddFishGain(amount);
         gameObject.SetActive(false); // 풀로 반환
     }
 }

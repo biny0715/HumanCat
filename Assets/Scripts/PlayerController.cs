@@ -61,6 +61,18 @@ public class PlayerController : MonoBehaviour
         mainCam = Camera.main;
     }
 
+    void OnEnable()
+    {
+        // 캐릭터 GameObject 가 비활성→활성 토글될 때 Instance 가 null 로 남는 문제 방어.
+        // Awake 는 재호출되지 않으므로 OnEnable 에서 다시 등록한다.
+        Instance = this;
+        // UIBlocker 의 현재 상태로 inputEnabled 즉시 동기화 (이전에 false 로 묶였던 잔재 제거).
+        if (UIBlocker.Instance != null)
+            SetInputEnabled(!UIBlocker.Instance.IsBlocked);
+        else
+            SetInputEnabled(true);
+    }
+
     void OnDisable()
     {
         if (Instance == this) Instance = null;
