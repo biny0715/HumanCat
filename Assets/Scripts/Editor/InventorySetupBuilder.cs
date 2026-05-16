@@ -53,8 +53,10 @@ public static class InventorySetupBuilder
         var inventoryUI = BuildInventoryPanel(uiRoot.transform, rowPrefab);
         var sellPopup   = BuildSellPopup(uiRoot.transform);
         var usePopup    = BuildUsePopup(uiRoot.transform);
+        var buyPopup    = BuildBuyPopup(uiRoot.transform);
 
         WireInventoryPopups(inventoryUI, sellPopup, usePopup);
+        WireBuyPopupToShopUIs(buyPopup);
         BuildInventoryBootstrap(uiRoot.transform, inventoryUI);
         AddInventoryButtonToGNB(uiRoot.transform, inventoryUI);
 
@@ -241,39 +243,110 @@ public static class InventorySetupBuilder
 
     static SellPopupUI BuildSellPopup(Transform uiParent)
     {
-        var go = ReplaceOrCreate(uiParent, "SellPopup");
-        SetCenter(go, new Vector2(560, 420));
-        var bg = go.AddComponent<Image>(); bg.color = new Color(0, 0, 0, 0.6f); // 반투명 어두운 오버레이
+        BuildQuantityPopupChrome(uiParent, "SellPopup", "판매 하시겠습니까?",
+            out var go, out var titleTmp, out var qtyTmp, out var totalTmp,
+            out var minusBtn, out var plusBtn, out var confirmBtn, out var cancelBtn);
 
-        var panel = NewUI("Panel", go.transform);
-        SetCenter(panel, new Vector2(520, 380));
-        var panelImg = panel.AddComponent<Image>(); panelImg.color = PanelBg;
-
-        var title = AddText(panel.transform, "Title", "아이템", 44, TextDark, TextAlignmentOptions.Center,
-            new Vector2(0, 1), new Vector2(0.5f, 1f), new Vector2(0, 80), new Vector2(0, -30));
-
-        AddText(panel.transform, "Content", "판매 하시겠습니까?", 32, TextDark, TextAlignmentOptions.Center,
-            new Vector2(0, 1), new Vector2(0.5f, 1f), new Vector2(0, 60), new Vector2(0, -120));
-
-        var price = AddText(panel.transform, "Price", "0 골드", 36, PriceColor, TextAlignmentOptions.Center,
-            new Vector2(0, 1), new Vector2(0.5f, 1f), new Vector2(0, 60), new Vector2(0, -190));
-
-        var confirm = MakePopupButton(panel.transform, "ConfirmButton", "확인", ConfirmBg,
-            new Vector2(0.3f, 0), new Vector2(160, 80), new Vector2(0, 40));
-        var cancel  = MakePopupButton(panel.transform, "CancelButton",  "취소", CancelBg,
-            new Vector2(0.7f, 0), new Vector2(160, 80), new Vector2(0, 40));
-
-        var ui = go.GetComponent<SellPopupUI>() ?? go.AddComponent<SellPopupUI>();
+        var ui = go.AddComponent<SellPopupUI>();
         var so = new SerializedObject(ui);
-        so.FindProperty("panel").objectReferenceValue         = go;
-        so.FindProperty("titleText").objectReferenceValue     = title;
-        so.FindProperty("priceText").objectReferenceValue     = price;
-        so.FindProperty("confirmButton").objectReferenceValue = confirm;
-        so.FindProperty("cancelButton").objectReferenceValue  = cancel;
+        so.FindProperty("panel").objectReferenceValue          = go;
+        so.FindProperty("titleText").objectReferenceValue      = titleTmp;
+        so.FindProperty("quantityText").objectReferenceValue   = qtyTmp;
+        so.FindProperty("totalPriceText").objectReferenceValue = totalTmp;
+        so.FindProperty("minusButton").objectReferenceValue    = minusBtn;
+        so.FindProperty("plusButton").objectReferenceValue     = plusBtn;
+        so.FindProperty("confirmButton").objectReferenceValue  = confirmBtn;
+        so.FindProperty("cancelButton").objectReferenceValue   = cancelBtn;
         so.ApplyModifiedPropertiesWithoutUndo();
 
         go.SetActive(false);
         return ui;
+    }
+
+    static BuyPopupUI BuildBuyPopup(Transform uiParent)
+    {
+        BuildQuantityPopupChrome(uiParent, "BuyPopup", "구매 하시겠습니까?",
+            out var go, out var titleTmp, out var qtyTmp, out var totalTmp,
+            out var minusBtn, out var plusBtn, out var confirmBtn, out var cancelBtn);
+
+        var ui = go.AddComponent<BuyPopupUI>();
+        var so = new SerializedObject(ui);
+        so.FindProperty("panel").objectReferenceValue          = go;
+        so.FindProperty("titleText").objectReferenceValue      = titleTmp;
+        so.FindProperty("quantityText").objectReferenceValue   = qtyTmp;
+        so.FindProperty("totalPriceText").objectReferenceValue = totalTmp;
+        so.FindProperty("minusButton").objectReferenceValue    = minusBtn;
+        so.FindProperty("plusButton").objectReferenceValue     = plusBtn;
+        so.FindProperty("confirmButton").objectReferenceValue  = confirmBtn;
+        so.FindProperty("cancelButton").objectReferenceValue   = cancelBtn;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        go.SetActive(false);
+        return ui;
+    }
+
+    /// <summary>SellPopup / BuyPopup 공통 골격(Title/Content/Quantity 행/Total/Confirm·Cancel) 빌드.</summary>
+    static void BuildQuantityPopupChrome(Transform uiParent, string name, string contentLabel,
+        out GameObject root, out TMP_Text titleTmp, out TMP_Text qtyTmp, out TMP_Text totalTmp,
+        out Button minusBtn, out Button plusBtn, out Button confirmBtn, out Button cancelBtn)
+    {
+        root = ReplaceOrCreate(uiParent, name);
+        SetCenter(root, new Vector2(560, 500));
+        var bg = root.AddComponent<Image>(); bg.color = new Color(0, 0, 0, 0.6f);
+
+        var panel = NewUI("Panel", root.transform);
+        SetCenter(panel, new Vector2(520, 460));
+        var panelImg = panel.AddComponent<Image>(); panelImg.color = PanelBg;
+
+        titleTmp = AddText(panel.transform, "Title", "아이템", 44, TextDark, TextAlignmentOptions.Center,
+            new Vector2(0, 1), new Vector2(0.5f, 1f), new Vector2(0, 80), new Vector2(0, -30));
+
+        AddText(panel.transform, "Content", contentLabel, 30, TextDark, TextAlignmentOptions.Center,
+            new Vector2(0, 1), new Vector2(0.5f, 1f), new Vector2(0, 50), new Vector2(0, -120));
+
+        // Quantity 행: [- 버튼] [x1 텍스트] [+ 버튼]
+        minusBtn = MakePopupButton(panel.transform, "MinusButton", "-", NavBg,
+            new Vector2(0.5f, 1f), new Vector2(70, 70), new Vector2(-110, -190));
+        // Quantity row 의 - / + 는 pivot Y=0.5 로 맞춰서 텍스트와 정렬되게
+        FixCenteredPivot(minusBtn);
+
+        qtyTmp = AddText(panel.transform, "Quantity", "x1", 40, TextDark, TextAlignmentOptions.Center,
+            new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(120, 70), new Vector2(0, -190 - 35));
+
+        plusBtn = MakePopupButton(panel.transform, "PlusButton", "+", NavBg,
+            new Vector2(0.5f, 1f), new Vector2(70, 70), new Vector2(110, -190));
+        FixCenteredPivot(plusBtn);
+
+        // Total 가격
+        totalTmp = AddText(panel.transform, "TotalPrice", "0 골드", 38, PriceColor, TextAlignmentOptions.Center,
+            new Vector2(0, 1), new Vector2(0.5f, 1f), new Vector2(0, 60), new Vector2(0, -290));
+
+        // Confirm / Cancel
+        confirmBtn = MakePopupButton(panel.transform, "ConfirmButton", "확인", ConfirmBg,
+            new Vector2(0.3f, 0), new Vector2(160, 80), new Vector2(0, 40));
+        cancelBtn  = MakePopupButton(panel.transform, "CancelButton",  "취소", CancelBg,
+            new Vector2(0.7f, 0), new Vector2(160, 80), new Vector2(0, 40));
+    }
+
+    static void FixCenteredPivot(Button btn)
+    {
+        var rt = btn.GetComponent<RectTransform>();
+        // MakePopupButton 은 pivot(0.5,0) 으로 만들지만 quantity 행에서는 가운데 정렬이 자연스럽다.
+        rt.pivot = new Vector2(0.5f, 0.5f);
+    }
+
+    static void WireBuyPopupToShopUIs(BuyPopupUI buyPopup)
+    {
+        foreach (var ui in Object.FindObjectsByType<ShopUI>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            var so = new SerializedObject(ui);
+            var prop = so.FindProperty("buyPopup");
+            if (prop != null)
+            {
+                prop.objectReferenceValue = buyPopup;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
     }
 
     // ── UsePopup ────────────────────────────────────────────────────────
@@ -408,39 +481,60 @@ public static class InventorySetupBuilder
             new Vector2(1, 0), new Vector2(-60, 60),
             attach: go => WireShopButton(go, shopTrigger));
 
+        // ShopBtn 가시성 관리 — GNB(항상 활성) 에 IndoorOnlyVisibility 부착, target ← ShopBtn
+        var shopBtn = gnb.Find("ShopBtn");
+        if (shopBtn != null) WireIndoorOnlyVisibility(gnb.gameObject, shopBtn.gameObject);
+
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         Debug.Log("[InventorySetupBuilder] GNB 아이콘 버튼(인벤토리/상점) 배치 완료 — Ctrl+S 로 저장");
+    }
+
+    static void WireIndoorOnlyVisibility(GameObject host, GameObject target)
+    {
+        var ctrl = host.GetComponent<IndoorOnlyVisibility>() ?? host.AddComponent<IndoorOnlyVisibility>();
+        var so = new SerializedObject(ctrl);
+        so.FindProperty("target").objectReferenceValue = target;
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     static void BuildGnbIconButton(Transform gnb, string name, string spritePath,
                                    Vector2 anchor, Vector2 anchoredPos,
                                    System.Action<GameObject> attach)
     {
-        // 기존 동일 이름 정리
+        // 기존 GameObject 는 보존 — RectTransform(크기/위치)을 덮어쓰지 않는다.
+        // 디자이너가 인스펙터에서 손본 값이 유지된다.
         var existing = gnb.Find(name);
-        if (existing != null) Object.DestroyImmediate(existing.gameObject);
+        GameObject go;
+        bool isNew = existing == null;
+        if (isNew)
+        {
+            go = NewUI(name, gnb);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = anchor;
+            rt.anchorMax = anchor;
+            rt.pivot     = new Vector2(anchor.x, 0);
+            rt.sizeDelta = new Vector2(96, 96);
+            rt.anchoredPosition = anchoredPos;
+        }
+        else
+        {
+            go = existing.gameObject;
+        }
 
-        var go = NewUI(name, gnb);
-        var rt = go.GetComponent<RectTransform>();
-        rt.anchorMin = anchor;
-        rt.anchorMax = anchor;
-        rt.pivot     = new Vector2(anchor.x, 0);
-        rt.sizeDelta = new Vector2(96, 96);
-        rt.anchoredPosition = anchoredPos;
-
-        var img = go.AddComponent<Image>();
+        // Image / Button 은 GetOrAdd — 기존 컴포넌트의 다른 설정도 보존
+        var img = go.GetComponent<Image>() ?? go.AddComponent<Image>();
         var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
         if (sprite != null) img.sprite = sprite;
         else Debug.LogWarning($"[InventorySetupBuilder] 스프라이트 없음: {spritePath}");
         img.preserveAspect = true;
 
-        go.AddComponent<Button>();
+        if (go.GetComponent<Button>() == null) go.AddComponent<Button>();
         attach?.Invoke(go);
     }
 
     static void WireInventoryButton(GameObject go, InventoryUI inventoryUI)
     {
-        var opener = go.AddComponent<InventoryOpenButton>();
+        var opener = go.GetComponent<InventoryOpenButton>() ?? go.AddComponent<InventoryOpenButton>();
         var so = new SerializedObject(opener);
         so.FindProperty("target").objectReferenceValue = inventoryUI;
         so.ApplyModifiedPropertiesWithoutUndo();
@@ -448,7 +542,7 @@ public static class InventorySetupBuilder
 
     static void WireShopButton(GameObject go, ShopTrigger trigger)
     {
-        var opener = go.AddComponent<ShopOpenButton>();
+        var opener = go.GetComponent<ShopOpenButton>() ?? go.AddComponent<ShopOpenButton>();
         var so = new SerializedObject(opener);
         so.FindProperty("target").objectReferenceValue = trigger;
         so.ApplyModifiedPropertiesWithoutUndo();
@@ -512,7 +606,7 @@ public static class InventorySetupBuilder
         }
 
         // InventoryPanel / Popups 의 TMP_Text 적용
-        foreach (var target in new[] { "InventoryPanel", "SellPopup", "UsePopup" })
+        foreach (var target in new[] { "InventoryPanel", "SellPopup", "UsePopup", "BuyPopup" })
         {
             var t = root.transform.Find(target);
             if (t == null) continue;

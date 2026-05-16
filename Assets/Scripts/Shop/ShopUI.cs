@@ -36,6 +36,9 @@ public class ShopUI : MonoBehaviour
     [SerializeField] Button nextButton;
     [SerializeField] TMP_Text pageIndicatorText; // 선택 — "1 / 5"
 
+    [Header("Popup")]
+    [SerializeField] BuyPopupUI buyPopup;
+
     readonly List<ShopItemRow> pool = new();
     int  currentPage;
     bool built;
@@ -73,7 +76,9 @@ public class ShopUI : MonoBehaviour
 
     void OnDisable()
     {
-        UIBlocker.ReleaseSafe();   // 비활성화 → 이동 차단 해제
+        UIBlocker.ReleaseSafe();
+        // 씬 전환 시 OnDestroy 순서 race 로 정적 이벤트 가 죽은 인스턴스 콜백을 시도하는 문제 방어.
+        Unsubscribe();
     }
 
     void OnDestroy() => Unsubscribe();
@@ -117,9 +122,17 @@ public class ShopUI : MonoBehaviour
         {
             var row = Instantiate(itemRowPrefab, itemListContent);
             row.gameObject.SetActive(false);
+            row.OnBuyRequested += HandleBuyRequested;
             pool.Add(row);
         }
         built = true;
+    }
+
+    void HandleBuyRequested(ItemData item)
+    {
+        if (item == null || shop == null) return;
+        if (buyPopup != null) buyPopup.Show(item, shop);
+        else Debug.LogWarning($"[ShopUI] '{name}' BuyPopup 미연결 — 구매 팝업을 띄울 수 없음");
     }
 
     void RefreshPage()
@@ -180,6 +193,7 @@ public class ShopUI : MonoBehaviour
     void HandleClose()
     {
         if (this == null) return;
+        if (buyPopup != null) buyPopup.Hide();
         if (gameObject.activeSelf) gameObject.SetActive(false);
     }
 
@@ -202,6 +216,8 @@ public class ShopUI : MonoBehaviour
 
     void HandleCurrencyChanged(CurrencyType _, long __)
     {
+        // 씬 전환 중 destroyed 인스턴스가 정적 이벤트로 콜백되는 경우 방어.
+        if (this == null) return;
         if (gameObject.activeInHierarchy) UpdateCurrencyHint();
         RefreshVisibleRows();
     }

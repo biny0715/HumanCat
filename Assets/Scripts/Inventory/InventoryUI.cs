@@ -35,6 +35,12 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] SellPopupUI sellPopup;
     [SerializeField] UsePopupUI  usePopup;
 
+    [Header("Mode Position (RectTransform Y)")]
+    [Tooltip("일반(Standalone) 모드로 열릴 때 anchoredPosition.y.")]
+    [SerializeField] float standalonePositionY = 0f;
+    [Tooltip("상점과 함께 열릴 때 anchoredPosition.y (보통 화면 하단으로 내림).")]
+    [SerializeField] float shopPositionY       = -740f;
+
     readonly List<InventoryItemRow> pool = new();
     Mode currentMode = Mode.Standalone;
     int  currentPage;
@@ -155,6 +161,7 @@ public class InventoryUI : MonoBehaviour
         currentMode = Mode.Standalone;
         currentPage = 0;
         if (closeButton != null) closeButton.gameObject.SetActive(true);
+        SetPanelY(standalonePositionY);
         UpdateTitle();
         gameObject.SetActive(true); // OnEnable → RefreshPage
     }
@@ -164,8 +171,18 @@ public class InventoryUI : MonoBehaviour
         currentMode = Mode.Shop;
         currentPage = 0;
         if (closeButton != null) closeButton.gameObject.SetActive(false);
+        SetPanelY(shopPositionY);
         UpdateTitle();
         gameObject.SetActive(true);
+    }
+
+    void SetPanelY(float y)
+    {
+        var rt = transform as RectTransform;
+        if (rt == null) return;
+        var p = rt.anchoredPosition;
+        p.y = y;
+        rt.anchoredPosition = p;
     }
 
     public void Close()

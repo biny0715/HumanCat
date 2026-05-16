@@ -42,6 +42,7 @@ public class MiniGameManager : MonoBehaviour
 
     float timeRemaining;
     float graceTimer;
+    int   sessionFishGain;   // 라운드 중 FishCoin 픽업 누적 — Success/Fail 시 일괄 지급
 
     // ── 초기화 ────────────────────────────────────────────────────────────
 
@@ -69,9 +70,10 @@ public class MiniGameManager : MonoBehaviour
         fishCoinSpawner?.ResetRun();
         fishCoinSpawner?.SetRunning(true);
 
-        timeRemaining = gameDuration;
-        graceTimer    = 0f;
-        State         = MiniGameState.Playing;
+        timeRemaining   = gameDuration;
+        graceTimer      = 0f;
+        sessionFishGain = 0;
+        State           = MiniGameState.Playing;
 
         gameOverPanel?.SetActive(false);
         successPanel?.SetActive(false);
@@ -88,6 +90,13 @@ public class MiniGameManager : MonoBehaviour
 
     /// <summary>해당 레벨에서 "캐치 성공"으로 추가로 받는 Gold 코인.</summary>
     public int CatchBonusReward(int level) => Mathf.Max(1, level) * coinPerLevel;
+
+    /// <summary>FishCoinPickup 이 라운드 중 호출 — 게임 종료 시 일괄 지급된다.</summary>
+    public void AddFishGain(int amount)
+    {
+        if (amount <= 0) return;
+        sessionFishGain += amount;
+    }
 
     public void OnPlayerDamaged(int hp, float hpPercent)
     {
@@ -140,6 +149,7 @@ public class MiniGameManager : MonoBehaviour
         int level   = StatManager.Instance != null ? StatManager.Instance.Level : 1;
         int reward  = SurvivalReward(level) + (caught ? CatchBonusReward(level) : 0);
         CurrencyManager.Instance?.Add(CurrencyType.Gold, reward);
+        SettleFishGain();
         Debug.Log($"[MiniGame] 성공({(caught ? "캐치" : "버티기")}) Lv{level} → Gold +{reward}");
 
         StatManager.Instance?.OnGameSuccess();
@@ -151,10 +161,20 @@ public class MiniGameManager : MonoBehaviour
     void Fail(string reason)
     {
         State = MiniGameState.Fail;
+        SettleFishGain();
         StopAll();
         Debug.Log($"[MiniGame] 실패: {reason}");
         if (HandleTimeAfterGame()) return;
         gameOverPanel?.SetActive(true);
+    }
+
+    /// <summary>세션 동안 누적된 Fish 픽업을 게임 종료 시 한 번에 지급.</summary>
+    void SettleFishGain()
+    {
+        if (sessionFishGain <= 0) return;
+        CurrencyManager.Instance?.Add(CurrencyType.Fish, sessionFishGain);
+        Debug.Log($"[MiniGame] FishCoin 정산 → Fish +{sessionFishGain}");
+        sessionFishGain = 0;
     }
 
     /// <summary>
