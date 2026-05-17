@@ -22,4 +22,4 @@ MonoBehaviour:
   maxStack: 10
   placementPrefab: {fileID: 9217535124624559875, guid: 482c5100d30714625ba7339111c8e731, type: 3}
   allowedSurfaces: 2
-  wallSign: 1
+  bottomFree: 1

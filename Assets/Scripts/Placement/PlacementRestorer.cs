@@ -37,8 +37,11 @@ public class PlacementRestorer : MonoBehaviour
                                  Quaternion.identity,
                                  placedFurnitureRoot);
             PlacementManager.NormalizeScale(go, item.PlacementPrefab, placedFurnitureRoot);
-            PlacementManager.EnsureFurnitureCollider(go);
+            // collider 는 prefab 원본 상태 유지 — 배치 모드 진입 시 PlacementManager 가 임시로 부착/제거한다.
             if (layer >= 0) SetLayerRecursive(go, layer);
+
+            var fi = go.GetComponent<FurnitureInstance>() ?? go.AddComponent<FurnitureInstance>();
+            fi.Setup(item.ItemId);
             restored++;
         }
         if (restored > 0)

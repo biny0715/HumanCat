@@ -262,6 +262,207 @@ public static class PlacementSetupBuilder
             tmp.font = bold != null ? bold : light;
     }
 
+    // ── EditMode UI 배치 (편집 토글 + 이동/철거 패널) ──────────────────
+
+    [MenuItem("HumanCat/Placement/Setup EditMode UI (Main scene)")]
+    public static void SetupEditModeUI()
+    {
+        var active = EditorSceneManager.GetActiveScene();
+        if (active.path != MainScene)
+            EditorSceneManager.OpenScene(MainScene, OpenSceneMode.Single);
+
+        var uiRoot = FindInActiveScene("[ UI ]");
+        if (uiRoot == null)
+        {
+            Debug.LogError("[PlacementSetupBuilder] '[ UI ]' 없음");
+            return;
+        }
+
+        // 기존 동일 이름 정리
+        var existing = uiRoot.transform.Find("EditModeUI");
+        if (existing != null) Object.DestroyImmediate(existing.gameObject);
+
+        // Root — 항상 활성 (컴포넌트가 정적 이벤트 구독 유지). 전체 화면 영역으로.
+        var root = NewUI("EditModeUI", uiRoot.transform);
+        var rootRt = root.GetComponent<RectTransform>();
+        rootRt.anchorMin = Vector2.zero;
+        rootRt.anchorMax = Vector2.one;
+        rootRt.offsetMin = Vector2.zero;
+        rootRt.offsetMax = Vector2.zero;
+
+        // ── 우상단 토글 버튼 ───────────────────────────────────────────
+        var toggleGo = NewUI("EditToggleButton", root.transform);
+        var toggleRt = toggleGo.GetComponent<RectTransform>();
+        toggleRt.anchorMin = new Vector2(1, 1);
+        toggleRt.anchorMax = new Vector2(1, 1);
+        toggleRt.pivot     = new Vector2(1, 1);
+        toggleRt.sizeDelta = new Vector2(240, 96);
+        toggleRt.anchoredPosition = new Vector2(-30, -30);
+        var toggleImg = toggleGo.AddComponent<Image>();
+        toggleImg.color = new Color(0.20f, 0.35f, 0.55f, 1f);
+        var toggleBtn = toggleGo.AddComponent<Button>();
+
+        var toggleLabelGo = NewUI("Label", toggleGo.transform);
+        var toggleLabelRt = toggleLabelGo.GetComponent<RectTransform>();
+        toggleLabelRt.anchorMin = Vector2.zero;
+        toggleLabelRt.anchorMax = Vector2.one;
+        toggleLabelRt.offsetMin = Vector2.zero;
+        toggleLabelRt.offsetMax = Vector2.zero;
+        var toggleLabelTmp = toggleLabelGo.AddComponent<TextMeshProUGUI>();
+        toggleLabelTmp.text       = "편집 모드";
+        toggleLabelTmp.fontSize   = 36;
+        toggleLabelTmp.alignment  = TextAlignmentOptions.Center;
+        toggleLabelTmp.color      = Color.white;
+
+        // ── 하단 액션 패널 (이동/철거) ──────────────────────────────────
+        var panel = NewUI("ActionPanel", root.transform);
+        var panelRt = panel.GetComponent<RectTransform>();
+        panelRt.anchorMin = new Vector2(0, 0);
+        panelRt.anchorMax = new Vector2(1, 0);
+        panelRt.pivot     = new Vector2(0.5f, 0);
+        panelRt.sizeDelta = new Vector2(0, 200);
+        panelRt.anchoredPosition = new Vector2(0, 40);
+        var panelImg = panel.AddComponent<Image>();
+        panelImg.color = new Color(0.10f, 0.10f, 0.12f, 0.85f);
+
+        // Selection Label
+        var sel = NewUI("SelectionLabel", panel.transform);
+        var selRt = sel.GetComponent<RectTransform>();
+        selRt.anchorMin = new Vector2(0, 1);
+        selRt.anchorMax = new Vector2(1, 1);
+        selRt.pivot = new Vector2(0.5f, 1f);
+        selRt.sizeDelta = new Vector2(0, 60);
+        selRt.anchoredPosition = new Vector2(0, -10);
+        var selTmp = sel.AddComponent<TextMeshProUGUI>();
+        selTmp.text       = "선택된 가구";
+        selTmp.fontSize   = 32;
+        selTmp.alignment  = TextAlignmentOptions.Center;
+        selTmp.color      = Color.white;
+
+        var move = MakeFlatButton(panel.transform, "MoveButton", "이동",
+            new Color(0.25f, 0.45f, 0.70f, 1f),
+            new Vector2(0.5f, 0), new Vector2(220, 90),
+            new Vector2(-130, 25));
+
+        var remove = MakeFlatButton(panel.transform, "RemoveButton", "철거",
+            new Color(0.55f, 0.20f, 0.20f, 1f),
+            new Vector2(0.5f, 0), new Vector2(220, 90),
+            new Vector2(130, 25));
+
+        // Component + 슬롯 연결
+        var ctrl = root.AddComponent<EditModeController>();
+        var so = new SerializedObject(ctrl);
+        so.FindProperty("editToggleButton").objectReferenceValue = toggleBtn;
+        so.FindProperty("editToggleLabel").objectReferenceValue  = toggleLabelTmp;
+        so.FindProperty("actionPanel").objectReferenceValue      = panel;
+        so.FindProperty("moveButton").objectReferenceValue       = move;
+        so.FindProperty("removeButton").objectReferenceValue     = remove;
+        so.FindProperty("selectionLabel").objectReferenceValue   = selTmp;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyFonts(root);
+        root.SetActive(true);
+        panel.SetActive(false); // 자식 패널만 비활성으로 시작 (선택 시 토글)
+
+        // Indoor + Human(Day) 일 때만 표시되도록 [ UI ] 부모에 EditModeUIVisibility 자동 부착.
+        // (self-toggle 불가 — 부모에 두고 target=EditModeUI 로 토글하는 게 표준 패턴)
+        BindEditModeUIVisibilityComponent(uiRoot.gameObject, root);
+
+        EditorSceneManager.MarkSceneDirty(active);
+        Debug.Log("[PlacementSetupBuilder] EditMode UI 배치 완료 — Ctrl+S 로 저장");
+    }
+
+    [MenuItem("HumanCat/Placement/Bind EditModeUI Visibility")]
+    public static void BindEditModeUIVisibility()
+    {
+        var active = EditorSceneManager.GetActiveScene();
+        if (active.path != MainScene)
+            EditorSceneManager.OpenScene(MainScene, OpenSceneMode.Single);
+
+        var uiRoot = FindInActiveScene("[ UI ]");
+        var editUI = FindInActiveScene("EditModeUI");
+        if (uiRoot == null || editUI == null)
+        {
+            Debug.LogError("[PlacementSetupBuilder] '[ UI ]' 또는 'EditModeUI' 없음 — Setup EditMode UI 메뉴 먼저 실행");
+            return;
+        }
+        BindEditModeUIVisibilityComponent(uiRoot, editUI);
+        EditorSceneManager.MarkSceneDirty(active);
+    }
+
+    /// <summary>
+    /// host([ UI ]) 에 EditModeUIVisibility 를 부착하고 target 을 연결한다.
+    /// 이전에 동일 target 으로 IndoorOnlyVisibility 가 부착되어 있으면 같이 정리 (중복 토글 방지).
+    /// 이미 EditModeUIVisibility 가 같은 target 으로 있으면 스킵 (멱등).
+    /// </summary>
+    static void BindEditModeUIVisibilityComponent(GameObject host, GameObject target)
+    {
+        if (host == null || target == null) return;
+
+        // 1) 이전 버전에서 부착해 둔 IndoorOnlyVisibility(target=EditModeUI) 정리
+        foreach (var legacy in host.GetComponents<IndoorOnlyVisibility>())
+        {
+            var lso = new SerializedObject(legacy);
+            if (lso.FindProperty("target").objectReferenceValue == target)
+            {
+                Object.DestroyImmediate(legacy);
+                Debug.Log("[PlacementSetupBuilder] 이전 IndoorOnlyVisibility(EditModeUI) 제거 — EditModeUIVisibility 로 교체");
+                break;
+            }
+        }
+
+        // 2) 이미 EditModeUIVisibility 부착되어 있으면 스킵
+        foreach (var existing in host.GetComponents<EditModeUIVisibility>())
+        {
+            var so = new SerializedObject(existing);
+            if (so.FindProperty("target").objectReferenceValue == target)
+            {
+                Debug.Log("[PlacementSetupBuilder] EditModeUIVisibility 이미 부착됨 — 스킵");
+                return;
+            }
+        }
+
+        var vis = host.AddComponent<EditModeUIVisibility>();
+        var vso = new SerializedObject(vis);
+        vso.FindProperty("target").objectReferenceValue = target;
+        vso.ApplyModifiedPropertiesWithoutUndo();
+        Debug.Log("[PlacementSetupBuilder] EditModeUIVisibility 부착 — Indoor + Human(Day) 일 때만 EditModeUI 표시");
+    }
+
+    // ── Default Placements (기본 배치 자산) ────────────────────────────
+
+    const string DefaultPlacementsAssetPath = "Assets/Resources/DefaultPlacements.asset";
+
+    [MenuItem("HumanCat/Placement/Save Current Placements as Default")]
+    public static void SaveCurrentAsDefault()
+    {
+        // Resources 폴더 보장
+        if (!AssetDatabase.IsValidFolder("Assets/Resources"))
+            AssetDatabase.CreateFolder("Assets", "Resources");
+
+        // 기존 자산이 있으면 records 만 교체 (참조 유지). 없으면 새로 생성.
+        var asset = AssetDatabase.LoadAssetAtPath<DefaultPlacementSet>(DefaultPlacementsAssetPath);
+        bool created = false;
+        if (asset == null)
+        {
+            asset   = ScriptableObject.CreateInstance<DefaultPlacementSet>();
+            created = true;
+        }
+
+        asset.records = new System.Collections.Generic.List<PlacementRecord>();
+        foreach (var r in PlacementRepository.All)
+        {
+            if (r == null || string.IsNullOrEmpty(r.itemId)) continue;
+            asset.records.Add(new PlacementRecord { itemId = r.itemId, x = r.x, y = r.y });
+        }
+
+        if (created) AssetDatabase.CreateAsset(asset, DefaultPlacementsAssetPath);
+        EditorUtility.SetDirty(asset);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"[PlacementSetupBuilder] DefaultPlacements 저장 — {asset.records.Count} 개 ({DefaultPlacementsAssetPath})");
+    }
+
     // ── 헬퍼 ───────────────────────────────────────────────────────────
 
     static GameObject FindInActiveScene(string name)

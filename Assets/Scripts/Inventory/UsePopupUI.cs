@@ -50,7 +50,12 @@ public class UsePopupUI : MonoBehaviour
                 ? (placeable ? "원하는 위치를 선택해 배치하세요." : "이 아이템을 사용하시겠습니까?")
                 : item.Description;
 
-        if (panel != null) panel.SetActive(true);
+        if (panel != null)
+        {
+            panel.SetActive(true);
+            // 첫 활성 시 LayoutGroup 위치 지연으로 인한 첫 클릭 무시 회피
+            LayoutRebuilder.ForceRebuildLayoutImmediate(panel.transform as RectTransform);
+        }
     }
 
     public void Hide()

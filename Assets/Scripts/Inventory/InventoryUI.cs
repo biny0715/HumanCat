@@ -71,6 +71,8 @@ public class InventoryUI : MonoBehaviour
         Subscribe();
         UIBlocker.AcquireSafe();
         RefreshPage();
+        // 첫 활성 시 LayoutGroup 자식 위치 지연 갱신으로 인한 첫 클릭 무시 문제 회피.
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
     void OnDisable()

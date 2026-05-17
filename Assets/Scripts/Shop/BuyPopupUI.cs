@@ -48,7 +48,12 @@ public class BuyPopupUI : MonoBehaviour
         currentShop = shop;
         quantity    = 1;
         if (titleText != null) titleText.text = item.DisplayName;
-        if (panel     != null) panel.SetActive(true);
+        if (panel     != null)
+        {
+            panel.SetActive(true);
+            // 첫 활성 시 LayoutGroup 위치 지연으로 인한 첫 클릭 무시 회피
+            LayoutRebuilder.ForceRebuildLayoutImmediate(panel.transform as RectTransform);
+        }
         Refresh();
     }
 

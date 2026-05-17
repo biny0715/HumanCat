@@ -32,7 +32,7 @@ public class PlacementControlsUI : MonoBehaviour
         if (PlacementManager.Instance != null)
         {
             PlacementManager.Instance.OnBegan += Show;
-            PlacementManager.Instance.OnEnded += Hide;
+            PlacementManager.Instance.OnEnded += HideOnEnded;
         }
     }
 
@@ -41,7 +41,7 @@ public class PlacementControlsUI : MonoBehaviour
         if (PlacementManager.Instance != null)
         {
             PlacementManager.Instance.OnBegan -= Show;
-            PlacementManager.Instance.OnEnded -= Hide;
+            PlacementManager.Instance.OnEnded -= HideOnEnded;
         }
     }
 
@@ -51,9 +51,9 @@ public class PlacementControlsUI : MonoBehaviour
         if (PlacementManager.Instance != null)
         {
             PlacementManager.Instance.OnBegan -= Show;
-            PlacementManager.Instance.OnEnded -= Hide;
+            PlacementManager.Instance.OnEnded -= HideOnEnded;
             PlacementManager.Instance.OnBegan += Show;
-            PlacementManager.Instance.OnEnded += Hide;
+            PlacementManager.Instance.OnEnded += HideOnEnded;
         }
     }
 
@@ -84,6 +84,9 @@ public class PlacementControlsUI : MonoBehaviour
     {
         if (panel != null) panel.SetActive(false);
     }
+
+    // PlacementManager.OnEnded(bool confirmed) 시그니처 어댑터.
+    void HideOnEnded(bool _) => Hide();
 
     void OnConfirm()
     {

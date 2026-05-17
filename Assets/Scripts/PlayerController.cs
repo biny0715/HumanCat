@@ -37,6 +37,9 @@ public class PlayerController : MonoBehaviour
     public PlayerType CurrentType =>
         activeController == humanController ? PlayerType.Human : PlayerType.Cat;
 
+    /// <summary>SwitchTo 로 캐릭터 타입이 결정/변경될 때 발화. 초기 SwitchTo 도 발화하므로 구독자는 항상 최신 상태를 받는다.</summary>
+    public event System.Action<PlayerType> OnPlayerTypeChanged;
+
     /// <summary>탭 입력 처리 여부. UI 열림 시 false 로 설정해 이동 차단.</summary>
     public bool InputEnabled => inputEnabled;
 
@@ -168,6 +171,7 @@ public class PlayerController : MonoBehaviour
         };
 
         activeController?.Initialize(mover, playerAnimator);
+        OnPlayerTypeChanged?.Invoke(CurrentType);
     }
 
     /// <summary>외부(UI, 이벤트 등)에서 타입을 직접 전환할 때 사용.</summary>

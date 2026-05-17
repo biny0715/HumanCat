@@ -15,6 +15,13 @@ public class ShopOpenButton : MonoBehaviour
     {
         var btn = GetComponent<Button>();
         if (btn != null) btn.onClick.AddListener(Open);
+
+        // 배치 모드 / 편집 모드 중에는 상점 버튼 자동 비활성 (자기 자신 열림은 영향 X)
+        if (GetComponent<ModeGatedButton>() == null)
+        {
+            var gate = gameObject.AddComponent<ModeGatedButton>();
+            gate.SetBlockedBy(BlockingMode.Placement | BlockingMode.EditMode);
+        }
     }
 
     void Open()
