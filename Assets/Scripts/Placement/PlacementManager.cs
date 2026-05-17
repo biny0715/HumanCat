@@ -51,16 +51,33 @@ public class PlacementManager : MonoBehaviour
 
     public State         CurrentState           { get; private set; } = State.Idle;
     public bool          IsActive               => CurrentState == State.Placing;
+    public bool          IsRelocating           => isRelocating;
     public bool          CurrentPreviewIsValid  => preview != null && preview.IsValid;
     public InvalidReason CurrentInvalidReason   { get; private set; } = InvalidReason.None;
 
-    public event Action OnBegan;
-    public event Action OnEnded;
+    /// <summary>EditModeController 등이 가구 클릭 감지에 재사용하는 furniture 레이어 마스크.</summary>
+    public LayerMask FurnitureMask => furnitureMask;
+
+    /// <summary>외부에서 배치된 가구 목록을 순회할 때 사용 (Edit Mode 클릭 감지 등).</summary>
+    public Transform PlacedFurnitureRoot => placedFurnitureRoot;
+
+    public event Action       OnBegan;
+    /// <summary>배치/이동 모드 종료. confirmed=true 면 [배치] 로 확정, false 면 [취소]/ESC/씬전환 등으로 중단.</summary>
+    public event Action<bool> OnEnded;
 
     PlacementPreview preview;
     ItemData         currentItem;
     Camera           mainCam;
     bool             dragging;
+
+    // Relocate(이동) 모드 컨텍스트 — TryBeginRelocate 시 채워지고 End 에서 정리.
+    bool       isRelocating;
+    Vector2    relocateOriginalPos;
+    GameObject relocateOriginalInstance;
+
+    // 배치 모드 동안 collider 없는 기존 가구에 임시로 부착한 collider 들.
+    // End 시 모두 Destroy — 사용자가 의도적으로 collider 없게 둔 가구의 원래 상태 보존.
+    readonly List<Collider2D> tempColliders = new List<Collider2D>();
 
     static readonly List<RaycastResult> uiRaycastBuffer = new List<RaycastResult>();
 
@@ -94,6 +111,56 @@ public class PlacementManager : MonoBehaviour
 
     public bool TryBegin(ItemData item)
     {
+        if (!CanBeginCommon(item)) return false;
+
+        currentItem               = item;
+        dragging                  = false;
+        isRelocating              = false;
+        relocateOriginalInstance  = null;
+        relocateOriginalPos       = Vector2.zero;
+        CreatePreview(item);
+        AddTempCollidersToExistingFurniture();
+        CurrentState = State.Placing;
+        UIBlocker.AcquireSafe();
+        OnBegan?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// 기존 배치 가구의 "이동" 모드 진입. 일반 TryBegin 과 동일한 흐름이지만:
+    ///   - 인벤토리 차감 없음 (이미 차감된 가구의 위치만 바꾸는 것)
+    ///   - 확정 시 originalInstance 파괴 + Repository 의 원본 레코드 제거
+    ///   - 취소 시 originalInstance 다시 활성 (원위치 복원)
+    /// originalInstance 는 진입 시 비활성화 — OverlapBox 충돌 검사에서 자기 자신을 제외하기 위함.
+    /// </summary>
+    public bool TryBeginRelocate(ItemData item, Vector2 originalPos, GameObject originalInstance)
+    {
+        if (!CanBeginCommon(item)) return false;
+        if (originalInstance == null)
+        {
+            Debug.LogWarning("[PlacementManager] Relocate: originalInstance 없음");
+            return false;
+        }
+
+        currentItem               = item;
+        dragging                  = false;
+        isRelocating              = true;
+        relocateOriginalPos       = originalPos;
+        relocateOriginalInstance  = originalInstance;
+        originalInstance.SetActive(false);
+
+        CreatePreview(item);
+        // 원본 위치에서 시작 — 사용자가 그 자리부터 드래그하는 게 자연스러움.
+        preview.transform.position = SnapToGrid(new Vector3(originalPos.x, originalPos.y, 0f));
+        AddTempCollidersToExistingFurniture();
+        CurrentState = State.Placing;
+        UIBlocker.AcquireSafe();
+        OnBegan?.Invoke();
+        return true;
+    }
+
+    bool CanBeginCommon(ItemData item)
+    {
         if (IsActive) return false;
         if (item == null || !item.Placeable)
         {
@@ -112,13 +179,6 @@ public class PlacementManager : MonoBehaviour
             Debug.LogWarning("[PlacementManager] Indoor 에서만 배치 가능");
             return false;
         }
-
-        currentItem  = item;
-        dragging     = false;
-        CreatePreview(item);
-        CurrentState = State.Placing;
-        UIBlocker.AcquireSafe();
-        OnBegan?.Invoke();
         return true;
     }
 
@@ -174,39 +234,6 @@ public class PlacementManager : MonoBehaviour
             desired.x / Mathf.Max(0.0001f, parentLossy.x),
             desired.y / Mathf.Max(0.0001f, parentLossy.y),
             desired.z / Mathf.Max(0.0001f, parentLossy.z));
-    }
-
-    /// <summary>
-    /// 배치된 가구에 Collider2D 가 하나도 없으면 자식 SpriteRenderer 결합 bounds 기준 BoxCollider2D 자동 추가.
-    /// 추가된 collider 는 trigger 로 설정 — 충돌 검사(OverlapBox)에만 사용되고 캐릭터 통과를 막지 않는다.
-    /// </summary>
-    public static void EnsureFurnitureCollider(GameObject instance)
-    {
-        if (instance == null) return;
-        if (instance.GetComponentInChildren<Collider2D>(true) != null) return;
-
-        var srs = instance.GetComponentsInChildren<SpriteRenderer>(true);
-        if (srs.Length == 0) return;
-
-        bool   init     = false;
-        Bounds combined = default;
-        foreach (var sr in srs)
-        {
-            if (sr == null) continue;
-            if (!init) { combined = sr.bounds; init = true; }
-            else combined.Encapsulate(sr.bounds);
-        }
-        if (!init) return;
-
-        var col = instance.AddComponent<BoxCollider2D>();
-        col.isTrigger = true;
-
-        Vector3 lossy   = instance.transform.lossyScale;
-        Vector3 localC  = instance.transform.InverseTransformPoint(combined.center);
-        col.offset = new Vector2(localC.x, localC.y);
-        col.size   = new Vector2(
-            combined.size.x / Mathf.Max(0.0001f, Mathf.Abs(lossy.x)),
-            combined.size.y / Mathf.Max(0.0001f, Mathf.Abs(lossy.y)));
     }
 
     void Update()
@@ -358,23 +385,36 @@ public class PlacementManager : MonoBehaviour
         return false;
     }
 
+    // hit 가구의 ItemData 를 못 찾을 때 쓰는 기본값 — ItemData.collisionBottomPercent/SidePercent 의 기본과 동일.
+    const float DefaultCollisionBottomRatio = 0.3f;
+    const float DefaultCollisionSideRatio   = 0.1f;
+
     /// <summary>
-    /// 가구 간 충돌 검사.
-    /// 규칙: 각 가구의 "위쪽 50%" 영역은 다른 가구와 겹쳐도 허용. "아래쪽 50%" 끼리만 겹치면 invalid.
-    ///       (예: 키 큰 가구의 윗부분에 작은 가구를 살짝 올려두는 식의 자연스러운 레이아웃 허용)
+    /// 가구 간 충돌 검사 — 각 가구가 자기 ItemData 에 정의된 비율로 자기 "금지 영역" 을 정의한다.
+    ///
+    /// 두 가구의 금지 영역끼리 X·Y 모두 겹치면 invalid:
+    ///  - X(좌우): 각 가구의 좌/우 CollisionSideRatio 만큼은 여유 영역. 가운데(100-2*S)% 만 충돌 검사 대상.
+    ///  - Y(상하): 각 가구의 아래쪽 CollisionBottomRatio 만큼이 금지 영역. 위쪽은 자유 겹침.
     /// </summary>
     bool CheckCollision(PlacementPreview pv)
     {
+        if (currentItem == null) return true;
+
         Vector2 size = pv.GetWorldSize();
         size.x = Mathf.Max(0.1f, size.x);
         size.y = Mathf.Max(0.1f, size.y);
 
+        float pBottomRatio = currentItem.CollisionBottomRatio;
+        float pSideRatio   = currentItem.CollisionSideRatio;
+
         // preview 영역 (월드) — sprite 결합 bounds center 사용 (transform.position 은 pivot 일 수 있음)
-        Vector2 pc      = pv.GetWorldCenter();
-        float   pMinX   = pc.x - size.x * 0.5f;
-        float   pMaxX   = pc.x + size.x * 0.5f;
-        float   pMinY   = pc.y - size.y * 0.5f;
-        float   pMidY   = pc.y;                  // preview 아래쪽 절반의 상단 = center.y
+        Vector2 pc          = pv.GetWorldCenter();
+        float   pMinX       = pc.x - size.x * 0.5f;
+        float   pMaxX       = pc.x + size.x * 0.5f;
+        float   pMinY       = pc.y - size.y * 0.5f;
+        float   pBottomTopY = pMinY + size.y * pBottomRatio;     // preview 아래쪽 금지 영역의 상단
+        float   pCenterMinX = pMinX + size.x * pSideRatio;       // preview 가운데 X 영역 좌측
+        float   pCenterMaxX = pMaxX - size.x * pSideRatio;       // preview 가운데 X 영역 우측
 
         // 1차 필터: preview 전체 사각형으로 hit 후보 모음
         var hits = Physics2D.OverlapBoxAll(pc, size, 0f, furnitureMask);
@@ -383,31 +423,69 @@ public class PlacementManager : MonoBehaviour
             if (c == null) continue;
             Bounds b = c.bounds;
 
-            // X 축 교집합
-            float xOverlapMin = Mathf.Max(pMinX, b.min.x);
-            float xOverlapMax = Mathf.Min(pMaxX, b.max.x);
-            if (xOverlapMax <= xOverlapMin) continue; // X 안 겹치면 무시
+            // hit 가구의 ratio — 자기 ItemData 의 값 사용. 없으면 기본값.
+            float hBottomRatio = DefaultCollisionBottomRatio;
+            float hSideRatio   = DefaultCollisionSideRatio;
+            var fi = c.GetComponentInParent<FurnitureInstance>();
+            if (fi != null)
+            {
+                var hItem = fi.ResolveItemData();
+                if (hItem != null)
+                {
+                    hBottomRatio = hItem.CollisionBottomRatio;
+                    hSideRatio   = hItem.CollisionSideRatio;
+                }
+            }
 
-            // Y 축: preview 아래절반 [pMinY, pMidY] vs other 아래절반 [b.min.y, b.center.y]
+            // X 가운데 영역끼리 교집합 — 좌/우 여유 영역 밖에서만 충돌 검사
+            float bCenterMinX = b.min.x + b.size.x * hSideRatio;
+            float bCenterMaxX = b.max.x - b.size.x * hSideRatio;
+            float xOverlapMin = Mathf.Max(pCenterMinX, bCenterMinX);
+            float xOverlapMax = Mathf.Min(pCenterMaxX, bCenterMaxX);
+            if (xOverlapMax <= xOverlapMin) continue; // X 가운데 안 겹치면 OK
+
+            // Y 아래쪽 금지 영역끼리 교집합
+            float bBottomTopY = b.min.y + b.size.y * hBottomRatio;
             float yOverlapMin = Mathf.Max(pMinY, b.min.y);
-            float yOverlapMax = Mathf.Min(pMidY, b.center.y);
-            if (yOverlapMax > yOverlapMin) return false; // 두 아래절반이 동시에 겹침 → invalid
+            float yOverlapMax = Mathf.Min(pBottomTopY, bBottomTopY);
+            if (yOverlapMax > yOverlapMin) return false; // 두 아래 금지 영역이 동시에 겹침 → invalid
         }
         return true;
     }
 
     void ConfirmPlacement()
     {
-        Vector3 pos = preview.transform.position;
-        var instance = Instantiate(currentItem.PlacementPrefab, pos, Quaternion.identity, placedFurnitureRoot);
-        NormalizeScale(instance, currentItem.PlacementPrefab, placedFurnitureRoot);
-        EnsureFurnitureCollider(instance);    // 향후 배치 시 OverlapBox 충돌 검사에 잡히도록
+        Vector3 pos      = preview.transform.position;
+        var     item     = currentItem;
+        var     instance = Instantiate(item.PlacementPrefab, pos, Quaternion.identity, placedFurnitureRoot);
+        NormalizeScale(instance, item.PlacementPrefab, placedFurnitureRoot);
+        // collider 는 prefab 원본 상태 유지 — 일부 가구는 collider 없는 게 의도(자유 겹침 허용).
+        // 다음 배치 모드 진입 시 충돌 검사 안전망으로 임시 collider 가 자동 부착/제거된다.
         ApplyFurnitureLayer(instance);
+        AttachFurnitureInstance(instance, item.ItemId);
 
-        InventoryManager.Instance?.TryRemoveItem(currentItem.ItemId, 1);
-        PlacementRepository.Add(currentItem.ItemId, pos);
+        if (isRelocating)
+        {
+            // 이동: 인벤토리 차감 X, 원본 레코드 제거 후 새 레코드 추가, 원본 instance 파괴
+            PlacementRepository.Remove(item.ItemId, relocateOriginalPos);
+            PlacementRepository.Add(item.ItemId, pos);
+            if (relocateOriginalInstance != null) Destroy(relocateOriginalInstance);
+            relocateOriginalInstance = null;
+        }
+        else
+        {
+            InventoryManager.Instance?.TryRemoveItem(item.ItemId, 1);
+            PlacementRepository.Add(item.ItemId, pos);
+        }
 
         End(confirmed: true);
+    }
+
+    static void AttachFurnitureInstance(GameObject instance, string itemId)
+    {
+        if (instance == null) return;
+        var fi = instance.GetComponent<FurnitureInstance>() ?? instance.AddComponent<FurnitureInstance>();
+        fi.Setup(itemId);
     }
 
     void ApplyFurnitureLayer(GameObject root)
@@ -430,13 +508,75 @@ public class PlacementManager : MonoBehaviour
 
     void End(bool confirmed)
     {
+        // Relocate 취소 시 원본 가구 복원 (확정된 경우는 ConfirmPlacement 에서 이미 파괴/정리됨)
+        if (isRelocating && !confirmed && relocateOriginalInstance != null)
+            relocateOriginalInstance.SetActive(true);
+
+        RemoveTempColliders();
+
         if (preview != null) Destroy(preview.gameObject);
-        preview      = null;
-        currentItem  = null;
-        dragging     = false;
-        CurrentState = State.Idle;
+        preview                  = null;
+        currentItem              = null;
+        dragging                 = false;
+        isRelocating             = false;
+        relocateOriginalInstance = null;
+        relocateOriginalPos      = Vector2.zero;
+        CurrentState             = State.Idle;
         UIBlocker.ReleaseSafe();
-        OnEnded?.Invoke();
+        OnEnded?.Invoke(confirmed);
+    }
+
+    /// <summary>
+    /// 배치 모드 진입 시 placedFurnitureRoot 의 기존 가구 중 Collider2D 가 없는 것에만
+    /// 임시 BoxCollider2D 를 부착 — 충돌 검사(OverlapBoxAll)에서 누락 방지.
+    /// 추가된 collider 는 tempColliders 에 보관되어 End() 의 RemoveTempColliders 에서 일괄 제거.
+    /// 원래 prefab 에서 collider 가 없게 둔 가구의 상태는 모드 종료 후 그대로 복원.
+    /// </summary>
+    void AddTempCollidersToExistingFurniture()
+    {
+        if (placedFurnitureRoot == null) return;
+        var fis = placedFurnitureRoot.GetComponentsInChildren<FurnitureInstance>(false);
+        foreach (var fi in fis)
+        {
+            if (fi == null) continue;
+            // 이미 collider 가 있으면 의도된 것 — 건드리지 않음
+            if (fi.GetComponentInChildren<Collider2D>(true) != null) continue;
+
+            var srs = fi.GetComponentsInChildren<SpriteRenderer>(true);
+            if (srs.Length == 0) continue;
+
+            bool   init     = false;
+            Bounds combined = default;
+            foreach (var sr in srs)
+            {
+                if (sr == null) continue;
+                if (!init) { combined = sr.bounds; init = true; }
+                else combined.Encapsulate(sr.bounds);
+            }
+            if (!init) continue;
+
+            var col = fi.gameObject.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+
+            Vector3 lossy  = fi.transform.lossyScale;
+            Vector3 localC = fi.transform.InverseTransformPoint(combined.center);
+            col.offset = new Vector2(localC.x, localC.y);
+            col.size   = new Vector2(
+                combined.size.x / Mathf.Max(0.0001f, Mathf.Abs(lossy.x)),
+                combined.size.y / Mathf.Max(0.0001f, Mathf.Abs(lossy.y)));
+
+            tempColliders.Add(col);
+        }
+    }
+
+    void RemoveTempColliders()
+    {
+        for (int i = 0; i < tempColliders.Count; i++)
+        {
+            var c = tempColliders[i];
+            if (c != null) Destroy(c);
+        }
+        tempColliders.Clear();
     }
 
     static bool IsPointerOverUI(Vector2 screenPos)

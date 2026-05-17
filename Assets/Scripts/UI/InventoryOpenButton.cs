@@ -14,6 +14,13 @@ public class InventoryOpenButton : MonoBehaviour
     {
         var btn = GetComponent<Button>();
         if (btn != null) btn.onClick.AddListener(Open);
+
+        // 배치 모드 / 편집 모드 / 상점 열림 중에는 인벤토리 버튼 자동 비활성
+        if (GetComponent<ModeGatedButton>() == null)
+        {
+            var gate = gameObject.AddComponent<ModeGatedButton>();
+            gate.SetBlockedBy(BlockingMode.Placement | BlockingMode.EditMode | BlockingMode.Shop);
+        }
     }
 
     void Open()

@@ -22,3 +22,6 @@ MonoBehaviour:
   maxStack: 10
   placementPrefab: {fileID: 7442958201605448447, guid: b04e4d6a33be64ea386f4059484dabea, type: 3}
   allowedSurfaces: -1
+  bottomFree: 0
+  collisionBottomPercent: 40
+  collisionSidePercent: 10

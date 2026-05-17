@@ -57,17 +57,28 @@ public class ItemData : ScriptableObject
              "Floor+Wall 가구(책장 등)는 이 값과 무관하게 항상 바닥 정렬됨.")]
     [SerializeField] bool bottomFree;
 
-    public string           ItemId           => itemId;
-    public string           DisplayName      => string.IsNullOrEmpty(displayName) ? itemId : displayName;
-    public Sprite           Icon             => icon;
-    public string           Description      => description;
-    public int              FishPrice        => fishPrice;
-    public int              GoldPrice        => goldPrice;
-    public bool             Stackable        => stackable;
-    public int              MaxStack         => stackable ? maxStack : 1;
-    public GameObject       PlacementPrefab  => placementPrefab;
-    public PlacementSurface AllowedSurfaces  => allowedSurfaces;
-    public bool             BottomFree       => bottomFree;
+    [Header("Collision (배치 시 겹침 검사)")]
+    [Tooltip("이 가구의 '아래쪽 N% 영역(발 영역)' 이 다른 가구와 동시에 겹치면 invalid. " +
+             "낮을수록 다른 가구가 위에 올라타거나 발 근처에 가까이 둘 수 있음. 기본 30%.")]
+    [Range(0, 100)] [SerializeField] int collisionBottomPercent = 30;
+
+    [Tooltip("이 가구의 좌/우 N% 영역은 다른 가구와 측면에서 살짝 겹쳐도 OK (옆에 가까이 두기 허용). " +
+             "가운데 100-2N% 영역만 충돌 검사 대상. 높을수록 옆 가구를 더 가까이 붙일 수 있음. 기본 10%.")]
+    [Range(0, 100)] [SerializeField] int collisionSidePercent = 10;
+
+    public string           ItemId             => itemId;
+    public string           DisplayName        => string.IsNullOrEmpty(displayName) ? itemId : displayName;
+    public Sprite           Icon               => icon;
+    public string           Description        => description;
+    public int              FishPrice          => fishPrice;
+    public int              GoldPrice          => goldPrice;
+    public bool             Stackable          => stackable;
+    public int              MaxStack           => stackable ? maxStack : 1;
+    public GameObject       PlacementPrefab    => placementPrefab;
+    public PlacementSurface AllowedSurfaces    => allowedSurfaces;
+    public bool             BottomFree         => bottomFree;
+    public float            CollisionBottomRatio => collisionBottomPercent / 100f;
+    public float            CollisionSideRatio   => collisionSidePercent   / 100f;
 
     /// <summary>이 아이템이 월드에 배치 가능한지. 프리팹과 허용 표면이 모두 있어야 한다.</summary>
     public bool Placeable => placementPrefab != null && allowedSurfaces != PlacementSurface.None;

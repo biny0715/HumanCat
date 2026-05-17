@@ -72,6 +72,9 @@ public class ShopUI : MonoBehaviour
         UpdateCurrencyHint();
         RefreshVisibleRows();
         UIBlocker.AcquireSafe();   // 패널 활성화 → 플레이어 이동 차단
+        // 첫 활성 시 LayoutGroup 의 자식 위치가 한 프레임 지연되어 raycast 가 PointerDown/Up 사이에
+        // 어긋나는 문제 회피 — 즉시 layout 재계산.
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
     void OnDisable()

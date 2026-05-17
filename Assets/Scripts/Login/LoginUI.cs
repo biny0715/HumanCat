@@ -37,7 +37,8 @@ public class LoginUI : MonoBehaviour
 
     public void Show(string userName, string shelterName)
     {
-        if (userNameLabel    != null) userNameLabel   .text = userName;
+        if (userNameLabel != null)
+            userNameLabel.text = string.IsNullOrEmpty(userName) ? string.Empty : $"{userName} 님의";
         if (shelterNameLabel != null) shelterNameLabel.text = shelterName;
     }
 
