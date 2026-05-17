@@ -82,11 +82,16 @@ public class ShopTrigger : MonoBehaviour
         OnShopCloseRequested?.Invoke();
     }
 
-    /// <summary>플레이어가 영역 안에 있을 때 Day/Night 가 바뀌면 상점도 같이 전환.</summary>
+    /// <summary>
+    /// Day/Night 가 바뀌면 자동 재오픈하지 않는다 — 대신 열려있는 ShopUI / InventoryUI 를 닫는다.
+    /// 사용자가 다시 트리거에 진입하거나 GNB 버튼을 눌러야 새로 열린다.
+    /// </summary>
     void HandleStateChanged(GameState _)
     {
-        if (activePlayer == null) return;
-        OpenForCurrentType();
+        // 트리거 안에 있었어도 추적 해제 → 캐릭터 전환 후 자동 재오픈 안 됨
+        activePlayer = null;
+        currentShop  = null;
+        OnShopCloseRequested?.Invoke();
     }
 
     void OpenForCurrentType()

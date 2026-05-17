@@ -87,6 +87,8 @@ public class InventoryUI : MonoBehaviour
         ShopTrigger.OnShopCloseRequested += HandleShopClose;
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnStateChanged += HandleGameStateChanged;
         subscribed = true;
     }
 
@@ -97,7 +99,16 @@ public class InventoryUI : MonoBehaviour
         ShopTrigger.OnShopCloseRequested -= HandleShopClose;
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged -= HandleInventoryChanged;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnStateChanged -= HandleGameStateChanged;
         subscribed = false;
+    }
+
+    /// <summary>Day/Night 가 바뀌면 모드 무관하게 인벤토리 패널을 닫는다.</summary>
+    void HandleGameStateChanged(GameState _)
+    {
+        if (this == null) return;
+        if (gameObject.activeSelf) Close();
     }
 
     // ── 풀 생성 / 페이지 갱신 ─────────────────────────────────────────────

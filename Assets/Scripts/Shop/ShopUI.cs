@@ -77,8 +77,9 @@ public class ShopUI : MonoBehaviour
     void OnDisable()
     {
         UIBlocker.ReleaseSafe();
-        // 씬 전환 시 OnDestroy 순서 race 로 정적 이벤트 가 죽은 인스턴스 콜백을 시도하는 문제 방어.
-        Unsubscribe();
+        // Unsubscribe 는 OnDestroy 에서만. 패널이 일시 비활성된 동안에도 정적 이벤트(OnShopOpenRequested) 를
+        // 받아야 다음 트리거 진입 시 다시 SetActive(true) 가 가능하다.
+        // 씬 전환 race 는 HandleOpen/HandleClose/HandleCurrencyChanged 의 `this == null` 가드가 처리한다.
     }
 
     void OnDestroy() => Unsubscribe();
