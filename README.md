@@ -87,7 +87,7 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 
 ### 인벤토리 시스템 (InventoryManager + ItemData)
 - **ItemData** — ScriptableObject 자산 (`Assets/Resources/Items/`)
-  - `itemId`(저장 안정성), `displayName`, `icon`, 가격(Fish/Gold), 스택 규칙, `placementPrefab`, `allowedSurfaces` (`[Flags]`로 Floor/Wall)
+  - `itemId`(저장 안정성), `displayName`, `icon`, 가격(Fish/Gold), 스택 규칙, `placementPrefab`, `allowedSurfaces` (`[Flags]`로 Floor/Wall), `bottomFree` (Wall 전용 가구가 바닥 근처에서만 마그네틱 스냅되는지)
 - **InventorySlot** — `{ itemId, count }` JSON 직렬화
 - **Human / Cat 인벤토리 분리** — `InventorySaveData{ human, cat }` 통합 저장. PlayerController.CurrentType 기준으로 현재 인벤토리 자동 매핑
 - **저장** — `Inventory.Data` 단일 키에 `JsonUtility`로 저장 (두 인벤토리 모두 포함)
@@ -115,7 +115,31 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 - **페이지 풀 재사용** — `itemsPerPage`(기본 6) 만큼만 ShopItemRow 사전 인스턴스화, 페이지 전환 시 Bind 재호출 (인스턴스 비용 0)
 - **InventoryUIBootstrap** — 비활성 패널의 `Initialize()` 를 게임 시작 시 호출 (Awake 의존 제거)
 - **SellPopupUI** — 판매 가격 = (현재 캐릭터 재화 기준) × 0.5, 0 미만은 0. 확인 → 인벤토리 차감 + Currency.Add
-- **UsePopupUI** — 사용 → 인벤토리 닫기 (입력 자동 복귀). Placeable 아이템은 향후 배치 모드 진입 지점 (TODO)
+- **UsePopupUI** — 사용 → 인벤토리 닫기 (입력 자동 복귀). Placeable 아이템은 [배치하기] 버튼으로 `PlacementManager.TryBegin()` 호출 → 배치 모드 진입
+
+### 가구 배치 시스템 (Placement)
+- **진입**: Indoor + Human 캐릭터 한정. 인벤토리 UsePopup [배치하기] 클릭 → `PlacementManager.TryBegin(item)`
+- **상태머신** — `Idle` / `Placing`. Day↔Night 전환 시 진행 중 배치 자동 취소
+- **Preview**: `placementPrefab` 인스턴스를 직접 Instantiate (`PlacementPreview` 컴포넌트 부착)
+  - 자식 SpriteRenderer 원본 색을 캐싱 후 `Color.Lerp(orig, tint, 0.35) + alpha 0.85` 로 valid/invalid 표시 — 원본 디테일 유지
+  - 부모(`placedFurnitureRoot`) `lossyScale` 무력화 (`NormalizeScale`) — Indoor `(2,2,2)` 스케일에 영향 받지 않음
+- **드래그 + 그리드 스냅** — Touchscreen/Mouse 입력(Input System), `gridSize` 단위로 정렬. 손 떼기 = **자동 확정 안 함** (사용자가 [배치] 눌러야 확정)
+- **표면 검증** — `Physics2D.OverlapPoint` + `floorMask`/`wallMask`, `AllowedSurfaces` 비트 매칭
+- **가구 간 충돌** — 각 가구의 **아래쪽 50%** 영역끼리 동시에 겹치면 invalid (위쪽 50%는 겹쳐도 허용 → 키 큰 가구 위에 작은 가구 올리기 등 자연스러운 레이아웃 허용)
+  - 1차: `OverlapBoxAll` 후보 추출 / 2차: X 교집합 + 아래절반 Y 교집합 검사
+- **마그네틱 스냅** (Wall 영역 안일 때만 동작)
+  | AllowedSurfaces | BottomFree | 동작 |
+  |---|---|---|
+  | Floor+Wall (책장 등) | n/a | 항상 sprite 하단 → wall collider `bounds.min.y` 정렬 |
+  | Wall only (창문/문) | true | `magneticBottomThreshold`(기본 1.0) 이내일 때만 정렬 |
+  | Wall only (포스터 등) | false | 스냅 없음 — 자유 배치 |
+- **PlacementControlsUI** — 화면 하단 [배치]/[취소]. preview valid 일 때만 [배치] interactable, invalid 사유에 따라 한국어 상태 텍스트 ("이곳에 놓을 수 없습니다" / "다른 가구와 겹칩니다")
+- **확정 시** — 인벤토리 1개 차감 + `PlacementRepository.Add(itemId, pos)` 저장 + `Furniture` 레이어 적용
+- **자동 BoxCollider2D 부착** (`EnsureFurnitureCollider`) — sprite 결합 bounds 기준, `isTrigger=true` (캐릭터 이동을 막지 않고 충돌 검사 전용)
+- **영구 저장 + 복원**
+  - `PlacementRepository` — `Furniture.Placements` 키에 `JsonUtility` 직렬화 (`itemId`, position)
+  - `PlacementRestorer` — 씬 진입 시 자동 재배치 + NormalizeScale + EnsureFurnitureCollider 호출
+- **레이어**: `Floor`, `Wall`, `Furniture` — `PlacementSetupBuilder` 가 TagManager 에 자동 추가
 
 ### UI 입력 차단 (UIBlocker)
 - 열린 UI 개수를 카운트(`Acquire`/`Release`) 하고 `lockCount > 0` 시 `PlayerController.SetInputEnabled(false)` 자동 호출
@@ -204,8 +228,9 @@ CharacterBase
 | `mini_level` / `mini_statPoints` / `mini_speedStat` / `mini_hpStat` / `mini_resistStat` | 미니게임 스탯 |
 | `Currency.Fish` / `Currency.Gold` | 재화 (string으로 long 직렬화) |
 | `Inventory.Data` | 인벤토리 전체 JSON (`{ human: { maxSlot, slots[] }, cat: { ... } }`) |
+| `Furniture.Placements` | 배치된 가구 목록 JSON (`{ entries: [{ itemId, x, y }] }`) |
 
-> 키 네임스페이스: `Login.*`, `Currency.*`, `Inventory.*`, `time_*`, `mini_*` 으로 도메인 분리.
+> 키 네임스페이스: `Login.*`, `Currency.*`, `Inventory.*`, `Furniture.*`, `time_*`, `mini_*` 으로 도메인 분리.
 
 ---
 
@@ -238,11 +263,12 @@ Assets/
 └── Scripts/
     ├── Characters/          # CharacterBase, Cat, Human 계층
     ├── Currency/            # CurrencyManager
-    ├── Editor/              # DebugMenu, ShopSetupBuilder, ItemDataBuilder, InventorySetupBuilder
+    ├── Editor/              # DebugMenu, ShopSetupBuilder, ItemDataBuilder, InventorySetupBuilder, PlacementSetupBuilder
     ├── Inventory/           # ItemData, InventoryManager, InventoryUI, InventoryItemRow, InventoryUIBootstrap, SellPopupUI, UsePopupUI
     ├── Login/               # LoginManager + Editor
     ├── MiniGame/            # 미니게임 로직 + FishCoinPickup, FishCoinSpawner
     │   └── Editor/          # MiniGameSceneBuilder
+    ├── Placement/           # PlacementManager, PlacementPreview, PlacementControlsUI, PlacementRepository, PlacementRestorer
     ├── Shop/                # Shop, ShopTrigger, ShopUI, ShopItemRow, ShopUIBootstrap
     ├── Time/                # TimeManager
     └── UI/                  # QuitButton, MiniGamePopup, TimeUI, CurrencyUI, ShelterNameDisplay, UIBlocker, InventoryOpenButton, ShopOpenButton
@@ -265,6 +291,9 @@ Unity 상단 메뉴 **HumanCat**에서 씬 설치/리셋을 자동화한다.
 | **Inventory → Setup Inventory UI (ALL)** | InventoryPanel + SellPopup + UsePopup + 행 프리팹 + 부트스트랩 + LoginScene UIBlocker 일괄 구축 |
 | **Inventory → Setup GNB Icons (Inventory + Shop)** | GNB 좌하단 인벤토리 / 우하단 상점 아이콘 버튼 자동 배치 (이미지 적용 + 슬롯 연결) |
 | **Item → Generate ItemData from Prefabs/Objects** | `Assets/Prefabs/Objects` 의 모든 프리팹을 ItemData 자산으로 일괄 생성 (이미 있으면 스킵) |
+| **Placement → Add Placement Layers** | Floor / Wall / Furniture 레이어를 TagManager 에 자동 추가 |
+| **Placement → Setup PlacementManager (Main scene)** | Main 씬에 PlacementManager + PlacementRestorer 배치 + LayerMask 자동 연결 |
+| **Placement → Setup PlacementControls UI (Main scene)** | 화면 하단 [배치]/[취소] 컨트롤 UI 일괄 구축 |
 | **Debug → Reset All Save Data** | 모든 PlayerPrefs 일괄 삭제 (확인 다이얼로그) |
 | **Debug → Set Game Time to 17-50** | 게임 시간을 17:50 으로 설정 (Play 중이면 즉시, Edit 모드면 PlayerPrefs 갱신) |
 | **Debug → Add 1000 Fish + 1000 Gold** | 양쪽 재화에 +1000 (Play / Edit 모드 모두 동작) |
