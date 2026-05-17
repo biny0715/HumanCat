@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -17,13 +18,29 @@ public class InputReader : MonoBehaviour
     /// <summary>탭/클릭 발생 시 스크린 좌표를 전달.</summary>
     public event Action<Vector2> OnTapPerformed;
 
+    static readonly List<RaycastResult> raycastBuffer = new List<RaycastResult>();
+
     void Update()
     {
         if (TryReadTouch(out Vector2 pos) || TryReadMouse(out pos))
         {
-            if (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject())
+            if (!IsPointerOverUI(pos))
                 OnTapPerformed?.Invoke(pos);
         }
+    }
+
+    /// <summary>
+    /// 직접 GraphicRaycaster 호출로 매번 정확히 검사.
+    /// EventSystem 내부 hover 캐시(IsPointerOverGameObject) 는 프레임 갱신 순서에 따라
+    /// 첫 클릭에 false 를 반환하는 경우가 있어 직접 RaycastAll 로 회피한다.
+    /// </summary>
+    static bool IsPointerOverUI(Vector2 screenPos)
+    {
+        if (EventSystem.current == null) return false;
+        var data = new PointerEventData(EventSystem.current) { position = screenPos };
+        raycastBuffer.Clear();
+        EventSystem.current.RaycastAll(data, raycastBuffer);
+        return raycastBuffer.Count > 0;
     }
 
     static bool TryReadTouch(out Vector2 screenPos)

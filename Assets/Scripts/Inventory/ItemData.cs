@@ -53,6 +53,10 @@ public class ItemData : ScriptableObject
     [Tooltip("이 아이템을 놓을 수 있는 표면. 여러 개 선택 가능 (예: 바닥+벽).")]
     [SerializeField] PlacementSurface allowedSurfaces = PlacementSurface.Floor;
 
+    [Tooltip("Wall 전용 가구 중 평소엔 자유롭게 움직이고 바닥 가까이만 마그네틱 스냅되는 가구(창문/문 등) 면 true. " +
+             "Floor+Wall 가구(책장 등)는 이 값과 무관하게 항상 바닥 정렬됨.")]
+    [SerializeField] bool bottomFree;
+
     public string           ItemId           => itemId;
     public string           DisplayName      => string.IsNullOrEmpty(displayName) ? itemId : displayName;
     public Sprite           Icon             => icon;
@@ -63,6 +67,7 @@ public class ItemData : ScriptableObject
     public int              MaxStack         => stackable ? maxStack : 1;
     public GameObject       PlacementPrefab  => placementPrefab;
     public PlacementSurface AllowedSurfaces  => allowedSurfaces;
+    public bool             BottomFree       => bottomFree;
 
     /// <summary>이 아이템이 월드에 배치 가능한지. 프리팹과 허용 표면이 모두 있어야 한다.</summary>
     public bool Placeable => placementPrefab != null && allowedSurfaces != PlacementSurface.None;
