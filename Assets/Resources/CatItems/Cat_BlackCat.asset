@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a984f8571e5554a83f3d722e63c8cb, type: 3}
+  m_Name: Cat_BlackCat
+  m_EditorClassIdentifier: Assembly-CSharp::CatItemData
+  itemId: cat_black
+  displayName: "\uAC80\uC740 \uACE0\uC591\uC774"
+  icon: {fileID: -3933095583779990992, guid: f4856c5e62b8a421ea76b203ec941ffe, type: 3}
+  fishPrice: 5
+  catPrefab: {fileID: 6086955954653057819, guid: 507ea9010b6725441b007480fc581c97, type: 3}
+  isCat: 1

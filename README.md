@@ -141,6 +141,31 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
   - `PlacementRestorer` — 씬 진입 시 자동 재배치 + NormalizeScale + EnsureFurnitureCollider 호출
 - **레이어**: `Floor`, `Wall`, `Furniture` — `PlacementSetupBuilder` 가 TagManager 에 자동 추가
 
+### 고양이 NPC + CatShop 시스템
+Indoor 에서 자율 이동하는 NPC 고양이를 구매/판매. **Cat 은 "엔티티"** — 인벤토리와 완전 분리.
+
+- **CatItemData** — `ScriptableObject` 직접 상속 (ItemData 와 별개, 가구 필드 없음). 필드: `itemId`, `displayName`, `icon`, `fishPrice`, `catPrefab`, `isCat`. 자산 위치: `Assets/Resources/CatItems/`
+- **3종 Variant** — `BlackCat` / `CheeseCat` / `SleepCat` prefab + 대응 CatItemData (fishPrice=5)
+- **CatManager** — 싱글톤 (씬 한정, DontDestroyOnLoad X — catRoot fake-null 회피)
+  - `SpawnCat(CatItemData)` — Indoor + Floor 마스크 안 랜덤 위치 + `NormalizeScale` (부모 scale 무력화) + Save
+  - `RemoveCat(CatNPC)` — 가장 가까운 매칭 레코드 1개 제거 + Save
+  - `HasCat(itemId)` — 보유 여부 (Shop 의 AlreadyOwned 검사용)
+  - `OnCatChanged` 이벤트 — Spawn/Remove 시 발화 → ShopUI 자동 갱신
+  - PlayerPrefs `CatNpc.Data` 키에 `[{ itemId, x, y, z }]` JSON 저장
+- **CatNPCController** — Indoor 전용 AI. 상태머신(`Idle`/`Move`), Floor 마스크 안 랜덤 목적지, Idle 머리 좌우 turn, `isMoving` Animator 파라미터. 인스펙터 노출: moveSpeed, moveRadius, idleTime, headTurn 등
+- **CatNPC** — 식별(itemId) + `Sell()` API. 클릭 감지는 분리
+- **CatNPCClickDispatcher** — 클릭 입력 중앙 처리
+  - SpriteRenderer.bounds + `spriteBoundsExpand` 패딩으로 hit 영역 확대 (작은 collider 보완)
+  - **Cat 플레이어 한정** 더블클릭 timing (`doubleClickWindow` 기본 0.3s)
+    - NPC 위 첫 클릭: 캐릭터 이동 보류(pending)
+    - timeout 안 두 번째 NPC 클릭: 판매 팝업
+    - timeout 경과: 단일 클릭 확정 → 캐릭터 이동
+  - Human 플레이어 또는 NPC 가 아닌 곳 클릭: 즉시 이동
+- **CatRemovePopupUI** — 판매 확인 팝업. Singleton lazy lookup (`FindAnyObjectByType(Include Inactive)`) — 비활성 시작도 OK. 판매 시 `fishPrice/2` 환급
+- **Shop 확장** — `catStockList: List<CatItemData>` 별도 필드 + `CanBuyCat` / `BuyCat` API. `BuyResult.AlreadyOwned` 추가 (1 종류당 1마리 제한, count>1 도 거부)
+- **ShopUI / ShopItemRow / BuyPopupUI** — 일반 + Cat 한 페이지에 합쳐 표시. `BindCat`, `OnBuyCatRequested`, `ShowCat` 오버로드. Cat 일 때 +/− 버튼 비활성(1마리 고정)
+- **자동 셋업** — `HumanCat → Cat NPC` 메뉴 4개: `Build CatNPC Prefab`, `Build Cat Variants`, `Setup CatManager`, `Setup CatRemovePopup UI`
+
 ### UI 입력 차단 (UIBlocker)
 - 열린 UI 개수를 카운트(`Acquire`/`Release`) 하고 `lockCount > 0` 시 `PlayerController.SetInputEnabled(false)` 자동 호출
 - ShopUI / InventoryUI / 팝업이 OnEnable/OnDisable 에서 짝지어 호출 → 카운트 0 으로 떨어지면 자동 입력 복구
@@ -229,8 +254,9 @@ CharacterBase
 | `Currency.Fish` / `Currency.Gold` | 재화 (string으로 long 직렬화) |
 | `Inventory.Data` | 인벤토리 전체 JSON (`{ human: { maxSlot, slots[] }, cat: { ... } }`) |
 | `Furniture.Placements` | 배치된 가구 목록 JSON (`{ entries: [{ itemId, x, y }] }`) |
+| `CatNpc.Data` | 스폰된 고양이 NPC 목록 JSON (`{ cats: [{ itemId, x, y, z }] }`) |
 
-> 키 네임스페이스: `Login.*`, `Currency.*`, `Inventory.*`, `Furniture.*`, `time_*`, `mini_*` 으로 도메인 분리.
+> 키 네임스페이스: `Login.*`, `Currency.*`, `Inventory.*`, `Furniture.*`, `CatNpc.*`, `time_*`, `mini_*` 으로 도메인 분리.
 
 ---
 
@@ -249,18 +275,22 @@ Assets/
 │   └── UI/                  # 팝업, 앱 아이콘, Quit, HumanCat_Title, HumanCat_Coin, InventoryIcon, ShopIcon
 ├── Editor/
 ├── Prefabs/
+│   ├── CatNPC/              # CatNPC(base), BlackCat, CheeseCat, SleepCat
 │   ├── MiniGame/
 │   │   ├── Obstacles/       # Obstacle_0 ~ Obstacle_17
 │   │   └── FishCoin.prefab
 │   ├── Objects/             # 인테리어 가구 프리팹 (BookCase, CatBowl, Pot, Window 등 41종)
 │   └── UI/                  # ToMiniGame_Popup, Exit_Popup, ShopItemRow, InventoryItemRow, InventoryPanel, SellPopup, UsePopup, CatShop, HumanShop
 ├── Resources/
-│   └── Items/               # ItemData ScriptableObject (자동 생성)
+│   ├── Items/               # ItemData ScriptableObject (자동 생성)
+│   └── CatItems/            # CatItemData ScriptableObject (Cat_BlackCat / Cat_CheeseCat / Cat_SleepCat)
 ├── Scenes/
 │   ├── LoginScene.unity
 │   ├── Main.unity
 │   └── MiniGame_Chase.unity
 └── Scripts/
+    ├── Cat/                 # CatItemData, CatManager, CatNPC, CatNPCController, CatNPCClickDispatcher, CatRemovePopupUI
+    │   └── Editor/          # CatNPCSetupBuilder
     ├── Characters/          # CharacterBase, Cat, Human 계층
     ├── Currency/            # CurrencyManager
     ├── Editor/              # DebugMenu, ShopSetupBuilder, ItemDataBuilder, InventorySetupBuilder, PlacementSetupBuilder
@@ -268,10 +298,10 @@ Assets/
     ├── Login/               # LoginManager + Editor
     ├── MiniGame/            # 미니게임 로직 + FishCoinPickup, FishCoinSpawner
     │   └── Editor/          # MiniGameSceneBuilder
-    ├── Placement/           # PlacementManager, PlacementPreview, PlacementControlsUI, PlacementRepository, PlacementRestorer
-    ├── Shop/                # Shop, ShopTrigger, ShopUI, ShopItemRow, ShopUIBootstrap
+    ├── Placement/           # PlacementManager, PlacementPreview, PlacementControlsUI, PlacementRepository, PlacementRestorer, EditModeController, FurnitureInstance, FurnitureHighlight
+    ├── Shop/                # Shop, ShopTrigger, ShopUI, ShopItemRow, ShopUIBootstrap, BuyPopupUI
     ├── Time/                # TimeManager
-    └── UI/                  # QuitButton, MiniGamePopup, TimeUI, CurrencyUI, ShelterNameDisplay, UIBlocker, InventoryOpenButton, ShopOpenButton
+    └── UI/                  # QuitButton, MiniGamePopup, TimeUI, CurrencyUI, ShelterNameDisplay, UIBlocker, InventoryOpenButton, ShopOpenButton, ModeGatedButton
 ```
 
 ---
@@ -294,6 +324,10 @@ Unity 상단 메뉴 **HumanCat**에서 씬 설치/리셋을 자동화한다.
 | **Placement → Add Placement Layers** | Floor / Wall / Furniture 레이어를 TagManager 에 자동 추가 |
 | **Placement → Setup PlacementManager (Main scene)** | Main 씬에 PlacementManager + PlacementRestorer 배치 + LayerMask 자동 연결 |
 | **Placement → Setup PlacementControls UI (Main scene)** | 화면 하단 [배치]/[취소] 컨트롤 UI 일괄 구축 |
+| **Cat NPC → Build CatNPC Prefab** | base CatNPC.prefab 생성 (SpriteRenderer/Animator/Rigidbody2D/CircleCollider2D/CatNPCController/CatNPC/YSort) |
+| **Cat NPC → Build Cat Variants (prefab + CatItemData)** | BlackCat/CheeseCat/SleepCat 3종 prefab + CatItemData 자산 일괄 생성 (fishPrice=5) |
+| **Cat NPC → Setup CatManager (Main scene)** | [ Managers ]/CatManager + [ Environment ]/Indoor/Cats 부모 + Resources/CatItems 폴더 + CatNPCClickDispatcher 일괄 셋업 |
+| **Cat NPC → Setup CatRemovePopup UI (Main scene)** | 고양이 판매 확인 팝업 UI 자동 구축 |
 | **Debug → Reset All Save Data** | 모든 PlayerPrefs 일괄 삭제 (확인 다이얼로그) |
 | **Debug → Set Game Time to 17-50** | 게임 시간을 17:50 으로 설정 (Play 중이면 즉시, Edit 모드면 PlayerPrefs 갱신) |
 | **Debug → Add 1000 Fish + 1000 Gold** | 양쪽 재화에 +1000 (Play / Edit 모드 모두 동작) |

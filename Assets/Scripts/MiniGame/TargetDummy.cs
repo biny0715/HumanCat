@@ -45,7 +45,7 @@ public class TargetDummy : MonoBehaviour
     float   stuckCheckTimer;
     float   escapeTimer;   // > 0 이면 player 추적 무시하고 escapeDir 유지
 
-    static readonly int IsRunning = Animator.StringToHash("isRunning");
+    static readonly int IsRunning = Animator.StringToHash("isMoving");
 
     // ── 초기화 ────────────────────────────────────────────────────────────
 

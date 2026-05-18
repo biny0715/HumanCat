@@ -27,11 +27,17 @@ public class Shop : MonoBehaviour
         NotInStock,
         InsufficientCurrency,
         InventoryFull,
+        AlreadyOwned,   // Cat 전용 — 같은 itemId 의 NPC 가 이미 활성 상태
     }
 
     [Header("Stock")]
-    [Tooltip("이 상점이 판매하는 아이템 목록. ItemData 자산을 드래그.")]
+    [Tooltip("이 상점이 판매하는 일반 아이템 목록 (인벤토리로 들어감).")]
     [SerializeField] List<ItemData> stockList = new List<ItemData>();
+
+    [Header("Cat Stock (CatShop 전용)")]
+    [Tooltip("이 상점이 판매하는 고양이 목록. CatItemData 자산을 드래그. " +
+             "구매 시 인벤토리 대신 CatManager.SpawnCat 으로 라우팅됨.")]
+    [SerializeField] List<CatItemData> catStockList = new List<CatItemData>();
 
     [Header("Currency")]
     [Tooltip("이 상점이 받는 재화. Human 상점=Gold, Cat 상점=Fish 등.")]
@@ -41,9 +47,10 @@ public class Shop : MonoBehaviour
     [Tooltip("상점 이름. UI 표기용.")]
     [SerializeField] string shopName = "상점";
 
-    public string                  ShopName         => shopName;
-    public IReadOnlyList<ItemData> StockList        => stockList;
-    public CurrencyType            AcceptedCurrency => acceptedCurrency;
+    public string                     ShopName         => shopName;
+    public IReadOnlyList<ItemData>    StockList        => stockList;
+    public IReadOnlyList<CatItemData> CatStockList     => catStockList;
+    public CurrencyType               AcceptedCurrency => acceptedCurrency;
 
     /// <summary>이 상점에서의 아이템 가격 (acceptedCurrency 기준).</summary>
     public int GetPrice(ItemData item)
@@ -94,6 +101,60 @@ public class Shop : MonoBehaviour
         im.TryAddItem(item.ItemId, count);
 
         OnPurchased?.Invoke(item, count);
+        return BuyResult.Success;
+    }
+
+    // ── Cat 전용 API (별도 흐름 — 인벤토리 사용 안 함) ─────────────────────
+
+    public int GetCatPrice(CatItemData item)
+        => item != null ? item.FishPrice : 0;
+
+    public bool CarriesCat(CatItemData item)
+        => item != null && catStockList.Contains(item);
+
+    /// <summary>
+    /// 고양이 구매 가능 여부. Indoor + 재화 충분 + 재고 있음 + 미보유.
+    /// Cat 은 1회 1마리 제한 — count 가 1 초과면 AlreadyOwned, 같은 itemId 의 고양이를
+    /// 이미 가진 경우도 AlreadyOwned.
+    /// </summary>
+    public BuyResult CanBuyCat(CatItemData item, int count = 1)
+    {
+        if (item == null || count <= 0) return BuyResult.UnknownItem;
+        if (!CarriesCat(item))           return BuyResult.NotInStock;
+
+        // Cat 은 1회 구매 = 1마리 고정
+        if (count > 1) return BuyResult.AlreadyOwned;
+
+        // 이미 같은 itemId 고양이 보유 중이면 구매 불가
+        if (CatManager.Instance != null && CatManager.Instance.HasCat(item.ItemId))
+            return BuyResult.AlreadyOwned;
+
+        var cm = CurrencyManager.Instance;
+        if (cm == null) return BuyResult.UnknownItem;
+
+        long total = (long)GetCatPrice(item) * count;
+        if (cm.Get(acceptedCurrency) < total) return BuyResult.InsufficientCurrency;
+
+        if (SceneController.Instance == null ||
+            SceneController.Instance.CurrentEnvironment != EnvironmentType.Indoor)
+            return BuyResult.UnknownItem; // Indoor 아니면 spawn 불가
+
+        return BuyResult.Success;
+    }
+
+    /// <summary>
+    /// 고양이 구매. 인벤토리는 건드리지 않고 CatManager.SpawnCat 으로 라우팅.
+    /// 트랜잭션: 재화 차감 → count 마리 spawn.
+    /// </summary>
+    public BuyResult BuyCat(CatItemData item, int count = 1)
+    {
+        var pre = CanBuyCat(item, count);
+        if (pre != BuyResult.Success) return pre;
+
+        var  cm    = CurrencyManager.Instance;
+        long total = (long)GetCatPrice(item) * count;
+        if (total > 0) cm.TrySubtract(acceptedCurrency, total);
+        for (int i = 0; i < count; i++) CatManager.Instance?.SpawnCat(item);
         return BuyResult.Success;
     }
 }
