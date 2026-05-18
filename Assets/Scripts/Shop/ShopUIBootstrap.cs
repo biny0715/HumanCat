@@ -32,7 +32,9 @@ public class ShopUIBootstrap : MonoBehaviour
         foreach (var p in panels)
         {
             if (p == null) continue;
-            var cg = p.GetComponent<CanvasGroup>() ?? p.gameObject.AddComponent<CanvasGroup>();
+            // Unity Object 의 fake-null 때문에 ?? 연산자 사용 금지 — TryGetComponent 로 명시 검사
+            if (!p.TryGetComponent<CanvasGroup>(out var cg))
+                cg = p.gameObject.AddComponent<CanvasGroup>();
             cg.alpha          = 0f;
             cg.blocksRaycasts = false;
             prepared.Add(cg);

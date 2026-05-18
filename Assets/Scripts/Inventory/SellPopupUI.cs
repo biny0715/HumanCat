@@ -40,7 +40,7 @@ public class SellPopupUI : MonoBehaviour
         if (plusButton    != null) plusButton.onClick.AddListener(OnPlus);
         if (confirmButton != null) confirmButton.onClick.AddListener(OnConfirm);
         if (cancelButton  != null) cancelButton.onClick.AddListener(Hide);
-        Hide();
+        // Hide() 를 Awake 에서 호출하면 panel == self 인 경우 self-toggle 무한 루프 — 인스펙터 비활성으로 시작.
     }
 
     public void Show(ItemData item)

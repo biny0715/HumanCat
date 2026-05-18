@@ -26,7 +26,9 @@ public class InventoryUIBootstrap : MonoBehaviour
     {
         if (panel == null) yield break;
 
-        var cg = panel.GetComponent<CanvasGroup>() ?? panel.gameObject.AddComponent<CanvasGroup>();
+        // Unity Object 의 fake-null 때문에 ?? 연산자 사용 금지 — TryGetComponent 로 명시 검사
+        if (!panel.TryGetComponent<CanvasGroup>(out var cg))
+            cg = panel.gameObject.AddComponent<CanvasGroup>();
         cg.alpha          = 0f;
         cg.blocksRaycasts = false;
         if (!panel.gameObject.activeSelf) panel.gameObject.SetActive(true);

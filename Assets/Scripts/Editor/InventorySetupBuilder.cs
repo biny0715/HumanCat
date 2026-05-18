@@ -244,11 +244,13 @@ public static class InventorySetupBuilder
     static SellPopupUI BuildSellPopup(Transform uiParent)
     {
         BuildQuantityPopupChrome(uiParent, "SellPopup", "판매 하시겠습니까?",
-            out var go, out var titleTmp, out var qtyTmp, out var totalTmp,
+            out var go, out _, out var titleTmp, out var qtyTmp, out var totalTmp,
             out var minusBtn, out var plusBtn, out var confirmBtn, out var cancelBtn);
 
         var ui = go.AddComponent<SellPopupUI>();
         var so = new SerializedObject(ui);
+        // panel = root(self) — root 의 검은 backdrop Image 까지 함께 토글되어 modal 효과.
+        // Awake 의 Hide() 호출이 제거되어 self-toggle 무한 루프 없음.
         so.FindProperty("panel").objectReferenceValue          = go;
         so.FindProperty("titleText").objectReferenceValue      = titleTmp;
         so.FindProperty("quantityText").objectReferenceValue   = qtyTmp;
@@ -266,11 +268,12 @@ public static class InventorySetupBuilder
     static BuyPopupUI BuildBuyPopup(Transform uiParent)
     {
         BuildQuantityPopupChrome(uiParent, "BuyPopup", "구매 하시겠습니까?",
-            out var go, out var titleTmp, out var qtyTmp, out var totalTmp,
+            out var go, out _, out var titleTmp, out var qtyTmp, out var totalTmp,
             out var minusBtn, out var plusBtn, out var confirmBtn, out var cancelBtn);
 
         var ui = go.AddComponent<BuyPopupUI>();
         var so = new SerializedObject(ui);
+        // panel = root(self) — root 의 검은 backdrop Image 까지 함께 토글되어 modal 효과.
         so.FindProperty("panel").objectReferenceValue          = go;
         so.FindProperty("titleText").objectReferenceValue      = titleTmp;
         so.FindProperty("quantityText").objectReferenceValue   = qtyTmp;
@@ -287,7 +290,7 @@ public static class InventorySetupBuilder
 
     /// <summary>SellPopup / BuyPopup 공통 골격(Title/Content/Quantity 행/Total/Confirm·Cancel) 빌드.</summary>
     static void BuildQuantityPopupChrome(Transform uiParent, string name, string contentLabel,
-        out GameObject root, out TMP_Text titleTmp, out TMP_Text qtyTmp, out TMP_Text totalTmp,
+        out GameObject root, out GameObject panelGo, out TMP_Text titleTmp, out TMP_Text qtyTmp, out TMP_Text totalTmp,
         out Button minusBtn, out Button plusBtn, out Button confirmBtn, out Button cancelBtn)
     {
         root = ReplaceOrCreate(uiParent, name);
@@ -295,6 +298,7 @@ public static class InventorySetupBuilder
         var bg = root.AddComponent<Image>(); bg.color = new Color(0, 0, 0, 0.6f);
 
         var panel = NewUI("Panel", root.transform);
+        panelGo = panel;
         SetCenter(panel, new Vector2(520, 460));
         var panelImg = panel.AddComponent<Image>(); panelImg.color = PanelBg;
 
@@ -374,6 +378,7 @@ public static class InventorySetupBuilder
 
         var ui = go.GetComponent<UsePopupUI>() ?? go.AddComponent<UsePopupUI>();
         var so = new SerializedObject(ui);
+        // panel = root(self) — root 의 검은 backdrop Image 까지 함께 토글되어 modal 효과.
         so.FindProperty("panel").objectReferenceValue        = go;
         so.FindProperty("titleText").objectReferenceValue    = title;
         so.FindProperty("descText").objectReferenceValue     = desc;

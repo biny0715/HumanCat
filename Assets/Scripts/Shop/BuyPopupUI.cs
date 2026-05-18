@@ -38,7 +38,8 @@ public class BuyPopupUI : MonoBehaviour
         if (plusButton    != null) plusButton.onClick.AddListener(OnPlus);
         if (confirmButton != null) confirmButton.onClick.AddListener(OnConfirm);
         if (cancelButton  != null) cancelButton.onClick.AddListener(Hide);
-        Hide();
+        // Hide() 를 Awake 에서 호출하면 panel == self 인 경우 첫 활성 시 자기 자신을 즉시 비활성화 →
+        // Show 의 SetActive(true) 가 무효화됨. 인스펙터에서 비활성으로 두면 게임 시작 시 안 보임.
     }
 
     public void Show(ItemData item, Shop shop)
