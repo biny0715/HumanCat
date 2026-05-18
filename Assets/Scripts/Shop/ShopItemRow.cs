@@ -19,43 +19,76 @@ public class ShopItemRow : MonoBehaviour
     [SerializeField] TMP_Text priceText;
     [SerializeField] Button   buyButton;
 
-    public event Action<ItemData> OnBuyRequested;
+    public event Action<ItemData>    OnBuyRequested;
+    public event Action<CatItemData> OnBuyCatRequested;
 
-    ItemData item;
-    Shop     shop;
+    // 한 row 는 일반(item) 또는 Cat(catItem) 중 하나만 바인딩. 다른 한쪽은 null.
+    ItemData    item;
+    CatItemData catItem;
+    Shop        shop;
 
+    /// <summary>일반 아이템 바인딩.</summary>
     public void Bind(ItemData itemData, Shop shopRef)
     {
-        item = itemData;
-        shop = shopRef;
+        item    = itemData;
+        catItem = null;
+        shop    = shopRef;
 
         if (iconImage != null) iconImage.sprite = item.Icon;
         if (nameText  != null) nameText.text    = item.DisplayName;
 
-        if (buyButton != null)
-        {
-            buyButton.onClick.RemoveAllListeners();
-            buyButton.onClick.AddListener(OnBuyClicked);
-        }
+        AttachClickListener();
         Refresh();
+    }
+
+    /// <summary>Cat 아이템 바인딩 — InventoryManager 흐름과 분리.</summary>
+    public void BindCat(CatItemData catItemData, Shop shopRef)
+    {
+        item    = null;
+        catItem = catItemData;
+        shop    = shopRef;
+
+        if (iconImage != null) iconImage.sprite = catItem.Icon;
+        if (nameText  != null) nameText.text    = catItem.DisplayName;
+
+        AttachClickListener();
+        Refresh();
+    }
+
+    void AttachClickListener()
+    {
+        if (buyButton == null) return;
+        buyButton.onClick.RemoveAllListeners();
+        buyButton.onClick.AddListener(OnBuyClicked);
     }
 
     public void Refresh()
     {
-        if (shop == null || item == null) return;
+        if (shop == null) return;
 
-        if (priceText != null)
+        if (item != null)
         {
-            string unit = shop.AcceptedCurrency == CurrencyType.Fish ? "F" : "G";
-            priceText.text = $"{shop.GetPrice(item):N0} {unit}";
+            if (priceText != null)
+            {
+                string unit = shop.AcceptedCurrency == CurrencyType.Fish ? "F" : "G";
+                priceText.text = $"{shop.GetPrice(item):N0} {unit}";
+            }
+            if (buyButton != null)
+                buyButton.interactable = shop.CanBuy(item, 1) == Shop.BuyResult.Success;
         }
-        if (buyButton != null)
-            buyButton.interactable = shop.CanBuy(item, 1) == Shop.BuyResult.Success;
+        else if (catItem != null)
+        {
+            if (priceText != null)
+                priceText.text = $"{shop.GetCatPrice(catItem):N0} F";
+            if (buyButton != null)
+                buyButton.interactable = shop.CanBuyCat(catItem, 1) == Shop.BuyResult.Success;
+        }
     }
 
     void OnBuyClicked()
     {
-        if (shop == null || item == null) return;
-        OnBuyRequested?.Invoke(item); // ShopUI 가 BuyPopup 을 띄우도록 위임
+        if (shop == null) return;
+        if      (item    != null) OnBuyRequested?.Invoke(item);       // ShopUI 가 BuyPopup.Show 로 위임
+        else if (catItem != null) OnBuyCatRequested?.Invoke(catItem); // ShopUI 가 BuyPopup.ShowCat 로 위임
     }
 }

@@ -20,12 +20,31 @@ public class InputReader : MonoBehaviour
 
     static readonly List<RaycastResult> raycastBuffer = new List<RaycastResult>();
 
+    void Awake()
+    {
+        CatNPCClickDispatcher.OnDeferredTap += HandleDeferredTap;
+    }
+
+    void OnDestroy()
+    {
+        CatNPCClickDispatcher.OnDeferredTap -= HandleDeferredTap;
+    }
+
+    /// <summary>NPC 위 단일 클릭이 더블클릭 timeout 후 확정될 때 호출 — 일반 OnTapPerformed 와 동일하게 발화.</summary>
+    void HandleDeferredTap(Vector2 screenPos) => OnTapPerformed?.Invoke(screenPos);
+
     void Update()
     {
         if (TryReadTouch(out Vector2 pos) || TryReadMouse(out pos))
         {
-            if (!IsPointerOverUI(pos))
-                OnTapPerformed?.Invoke(pos);
+            if (IsPointerOverUI(pos)) return;
+
+            // 고양이 플레이어 + NPC 위 클릭은 dispatcher 가 처리 (더블클릭 timing)
+            if (CatNPCClickDispatcher.Instance != null &&
+                CatNPCClickDispatcher.Instance.TryConsumeClick(pos))
+                return;
+
+            OnTapPerformed?.Invoke(pos);
         }
     }
 

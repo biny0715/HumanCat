@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 1157156674482132251}
   - component: {fileID: 2194838292755495031}
   - component: {fileID: 262342555372570696}
-  - component: {fileID: 7071370666303337775}
+  - component: {fileID: 7815701749193663432}
+  - component: {fileID: 2943434131794535595}
   m_Layer: 0
   m_Name: CatNPC
   m_TagString: Untagged
@@ -81,8 +82,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1148430510
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: -2762423998056936933, guid: 9f2ec384b7d67064da3654fd3d9a3ab0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -174,12 +175,12 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.5}
-  m_Radius: 0.38
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.3
 --- !u!114 &262342555372570696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,7 +209,20 @@ MonoBehaviour:
   spriteRenderer: {fileID: 854369428616712765}
   animator: {fileID: 6710957268061820786}
   rb: {fileID: 1157156674482132251}
---- !u!114 &7071370666303337775
+--- !u!114 &7815701749193663432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2740719182807243770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704b7e511876ad246a70b9f8e868f33a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatNPC
+  itemId: 
+--- !u!114 &2943434131794535595
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

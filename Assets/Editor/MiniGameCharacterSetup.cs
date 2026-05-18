@@ -9,7 +9,7 @@ using UnityEditor.Animations;
 /// HumanCat → MiniGame → Setup Characters 메뉴에서 실행.
 ///
 /// - Player      : NormalCat 스프라이트 + PlayerController.controller + PlayerAnimator
-/// - TargetDummy : BlackCat 스프라이트 + BlackCatController.controller (isRunning bool)
+/// - TargetDummy : BlackCat 스프라이트 + BlackCatController.controller (isMoving bool)
 /// </summary>
 public static class MiniGameCharacterSetup
 {
@@ -102,7 +102,7 @@ public static class MiniGameCharacterSetup
         ctrl = AnimatorController.CreateAnimatorControllerAtPath(BlackCtrlPath);
 
         // Bool 파라미터 추가
-        ctrl.AddParameter("isRunning", AnimatorControllerParameterType.Bool);
+        ctrl.AddParameter("isMoving", AnimatorControllerParameterType.Bool);
 
         var root = ctrl.layers[0].stateMachine;
 
@@ -120,13 +120,13 @@ public static class MiniGameCharacterSetup
         var toRun = idleState.AddTransition(runState);
         toRun.hasExitTime = false;
         toRun.duration    = 0f;
-        toRun.AddCondition(AnimatorConditionMode.If, 0, "isRunning");
+        toRun.AddCondition(AnimatorConditionMode.If, 0, "isMoving");
 
         // Run → Idle
         var toIdle = runState.AddTransition(idleState);
         toIdle.hasExitTime = false;
         toIdle.duration    = 0f;
-        toIdle.AddCondition(AnimatorConditionMode.IfNot, 0, "isRunning");
+        toIdle.AddCondition(AnimatorConditionMode.IfNot, 0, "isMoving");
 
         EditorUtility.SetDirty(ctrl);
         Debug.Log($"[MiniGameCharacterSetup] {BlackCtrlPath} 생성");

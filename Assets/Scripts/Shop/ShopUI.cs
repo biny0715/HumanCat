@@ -44,9 +44,8 @@ public class ShopUI : MonoBehaviour
     bool built;
     bool subscribed;
 
-    int PageCount => shop != null && itemsPerPage > 0
-        ? Mathf.Max(1, Mathf.CeilToInt(shop.StockList.Count / (float)itemsPerPage))
-        : 1;
+    int TotalItems => shop != null ? shop.StockList.Count + shop.CatStockList.Count : 0;
+    int PageCount  => itemsPerPage > 0 ? Mathf.Max(1, Mathf.CeilToInt(TotalItems / (float)itemsPerPage)) : 1;
 
     // ── 생명주기 ──────────────────────────────────────────────────────────
 
@@ -96,6 +95,8 @@ public class ShopUI : MonoBehaviour
             CurrencyManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged += RefreshVisibleRows;
+        if (CatManager.Instance != null)
+            CatManager.Instance.OnCatChanged += RefreshVisibleRows;
         subscribed = true;
     }
 
@@ -108,6 +109,8 @@ public class ShopUI : MonoBehaviour
             CurrencyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged -= RefreshVisibleRows;
+        if (CatManager.Instance != null)
+            CatManager.Instance.OnCatChanged -= RefreshVisibleRows;
         subscribed = false;
     }
 
@@ -126,7 +129,8 @@ public class ShopUI : MonoBehaviour
         {
             var row = Instantiate(itemRowPrefab, itemListContent);
             row.gameObject.SetActive(false);
-            row.OnBuyRequested += HandleBuyRequested;
+            row.OnBuyRequested    += HandleBuyRequested;
+            row.OnBuyCatRequested += HandleBuyCatRequested;
             pool.Add(row);
         }
         built = true;
@@ -139,25 +143,36 @@ public class ShopUI : MonoBehaviour
         else Debug.LogWarning($"[ShopUI] '{name}' BuyPopup 미연결 — 구매 팝업을 띄울 수 없음");
     }
 
+    void HandleBuyCatRequested(CatItemData cat)
+    {
+        if (cat == null || shop == null) return;
+        if (buyPopup != null) buyPopup.ShowCat(cat, shop);
+        else Debug.LogWarning($"[ShopUI] '{name}' BuyPopup 미연결 — Cat 구매 팝업을 띄울 수 없음");
+    }
+
     void RefreshPage()
     {
         if (shop == null) return;
-        int total = shop.StockList.Count;
-        int start = currentPage * itemsPerPage;
+        int normalCount = shop.StockList.Count;
+        int totalItems  = TotalItems;
+        int start       = currentPage * itemsPerPage;
 
         for (int i = 0; i < pool.Count; i++)
         {
             int idx = start + i;
             var row = pool[i];
-            if (idx < total)
-            {
-                row.Bind(shop.StockList[idx], shop);
-                row.gameObject.SetActive(true);
-            }
-            else
+            if (idx >= totalItems)
             {
                 row.gameObject.SetActive(false);
+                continue;
             }
+
+            // 일반 아이템 → Cat 순서로 합쳐 표시
+            if (idx < normalCount)
+                row.Bind(shop.StockList[idx], shop);
+            else
+                row.BindCat(shop.CatStockList[idx - normalCount], shop);
+            row.gameObject.SetActive(true);
         }
         UpdateNavButtons();
     }
