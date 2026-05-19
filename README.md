@@ -10,7 +10,19 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 
 ## 플레이 영상
 
-[![플레이 영상](https://img.youtube.com/vi/eAe0rFT4J2A/0.jpg)](https://youtube.com/shorts/eAe0rFT4J2A)
+[![플레이 영상](https://img.youtube.com/vi/1yoX5TLMczk/0.jpg)](https://youtu.be/1yoX5TLMczk)
+
+---
+
+## 미리보기
+
+| 메인 플레이 | 낮/밤 전환 |
+|:---:|:---:|
+| ![](docs/gameplay-overview.gif) | ![](docs/daynight.gif) |
+
+| 가구 배치 + 편집 | 고양이 상점 + NPC | 미니게임 |
+|:---:|:---:|:---:|
+| ![](docs/placement-edit.gif) | ![](docs/cat-shop.gif) | ![](docs/minigame.gif) |
 
 ---
 
@@ -30,6 +42,11 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 ### LoginScene
 앱 진입 씬 (Build Index 0). 최초 실행 여부에 따라 분기.
 
+| 컷씬 | 이름 입력 |
+|:---:|:---:|
+| ![](docs/login-cutscene.PNG) | ![](docs/login-name-input.PNG) |
+
+
 - **최초 실행** → 컷씬(8컷 33줄 대사) → 사용자/보호소 이름 입력 → Main
 - **재실행** → 저장된 이름 표시 + 로그인 버튼 → Main
 - **부트스트랩 매니저** — `CurrencyManager` / `InventoryManager` 등 `DontDestroyOnLoad` 싱글톤은 모두 LoginScene에 배치 → 이후 모든 씬에서 인스턴스 보장
@@ -40,6 +57,11 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 
 ### Main
 메인 월드 탐색 씬.
+
+| Outdoor 낮 | Outdoor 밤 | Indoor |
+|:---:|:---:|:---:|
+| ![](docs/main-outdoor-day.PNG) | ![](docs/main-outdoor-night.PNG) | ![](docs/main-indoor.PNG) |
+
 
 - **실외(Outdoor) / 실내(Indoor)** 전환 — 문 트리거(DoorTrigger)로 이동
 - **재화 UI** — Fish / Gold 코인 텍스트 (N0 콤마 포맷) 상단 표기
@@ -98,6 +120,11 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 - 정합성: 로드 시 등록 안 된 itemId / count≤0 슬롯 자동 정리
 
 ### 상점 시스템 (Shop / ShopUI / ShopTrigger)
+
+| 상점 (일반 + Cat 통합) | 구매 팝업 |
+|:---:|:---:|
+| ![](docs/shop-cat.PNG) | ![](docs/buy-popup.PNG) |
+
 - **Shop** — Indoor 가구(`Indoor/Furniture/Objects_1_3`) 자식 두 개(Human=Gold, Cat=Fish)
   - `acceptedCurrency`로 한 가지 재화만 사용 / `Buy()`는 트랜잭션 (실패 시 잔액·인벤토리 변동 없음)
 - **ShopTrigger** — Trigger Collider2D, `PlayerController.CurrentType` 기준 분기 → `OnShopOpenRequested(shop)` 정적 이벤트 발행
@@ -109,6 +136,9 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 - **ShopItemRow** — 아이콘 + 이름 + 가격 + 구매 버튼 (재화/인벤토리 상태로 interactable 자동 갱신)
 
 ### 인벤토리 UI (InventoryUI + 팝업)
+
+![](docs/inventory-standalone.PNG)
+
 - **두 가지 진입 모드** — 같은 패널을 모드만 바꿔 재사용
   - **Standalone** — GNB 인벤토리 버튼 클릭 시. 닫기 버튼 활성. 행 클릭 → 사용 팝업
   - **Shop** — ShopTrigger 이벤트 자동 구독. 상점과 함께 열림. 닫기 버튼 비활성. 행 클릭 → 판매 팝업
@@ -118,6 +148,11 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 - **UsePopupUI** — 사용 → 인벤토리 닫기 (입력 자동 복귀). Placeable 아이템은 [배치하기] 버튼으로 `PlacementManager.TryBegin()` 호출 → 배치 모드 진입
 
 ### 가구 배치 시스템 (Placement)
+
+| 배치 모드 | 편집 모드 |
+|:---:|:---:|
+| ![](docs/placement-mode.PNG) | ![](docs/edit-mode.PNG) |
+
 - **진입**: Indoor + Human 캐릭터 한정. 인벤토리 UsePopup [배치하기] 클릭 → `PlacementManager.TryBegin(item)`
 - **상태머신** — `Idle` / `Placing`. Day↔Night 전환 시 진행 중 배치 자동 취소
 - **Preview**: `placementPrefab` 인스턴스를 직접 Instantiate (`PlacementPreview` 컴포넌트 부착)
@@ -143,6 +178,9 @@ Unity 2D 모바일 캐주얼 게임. 낮과 밤이 실시간으로 흐르는 세
 
 ### 고양이 NPC + CatShop 시스템
 Indoor 에서 자율 이동하는 NPC 고양이를 구매/판매. **Cat 은 "엔티티"** — 인벤토리와 완전 분리.
+
+![](docs/cat-remove-popup.PNG)
+
 
 - **CatItemData** — `ScriptableObject` 직접 상속 (ItemData 와 별개, 가구 필드 없음). 필드: `itemId`, `displayName`, `icon`, `fishPrice`, `catPrefab`, `isCat`. 자산 위치: `Assets/Resources/CatItems/`
 - **3종 Variant** — `BlackCat` / `CheeseCat` / `SleepCat` prefab + 대응 CatItemData (fishPrice=5)
@@ -180,6 +218,10 @@ Indoor 에서 자율 이동하는 NPC 고양이를 구매/판매. **Cat 은 "엔
 ---
 
 ## 미니게임 시스템
+
+| 스탯 배분 패널 | 라운드 진행 |
+|:---:|:---:|
+| ![](docs/minigame-stat-panel.PNG) | ![](docs/minigame-gameplay.PNG) |
 
 ### 스탯 (StatManager)
 
