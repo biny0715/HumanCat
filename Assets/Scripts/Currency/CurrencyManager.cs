@@ -22,6 +22,10 @@ public class CurrencyManager : MonoBehaviour
     /// <summary>각 재화의 상한값 (100억).</summary>
     public const long MaxValue = 10_000_000_000L;
 
+    /// <summary>최초 실행 시 플레이어에게 지급되는 시작 재화.</summary>
+    public const long StartingFish = 10;
+    public const long StartingGold = 500;
+
     // 다른 매니저와 충돌 방지용 prefix
     public const string KeyFish = "Currency.Fish";
     public const string KeyGold = "Currency.Gold";
@@ -102,8 +106,27 @@ public class CurrencyManager : MonoBehaviour
 
     void Load()
     {
-        Fish = ReadLong(KeyFish);
-        Gold = ReadLong(KeyGold);
+        // 키가 없으면 최초 실행으로 간주하고 시작 재화를 시드.
+        // (DebugMenu 가 Edit 모드에서 키를 미리 만들면 정상값을 그대로 사용)
+        if (PlayerPrefs.HasKey(KeyFish))
+        {
+            Fish = ReadLong(KeyFish);
+        }
+        else
+        {
+            Fish = StartingFish;
+            Save(CurrencyType.Fish, Fish);
+        }
+
+        if (PlayerPrefs.HasKey(KeyGold))
+        {
+            Gold = ReadLong(KeyGold);
+        }
+        else
+        {
+            Gold = StartingGold;
+            Save(CurrencyType.Gold, Gold);
+        }
     }
 
     static long ReadLong(string key)
