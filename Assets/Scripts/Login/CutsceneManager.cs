@@ -21,8 +21,7 @@ using UnityEngine.UI;
 /// - WaitingDelay 중: 입력 무시 (0.3초 throttle)
 /// - WaitingInput 중: 다음 줄 또는 다음 컷
 /// - 그 외(Fade 중) : 입력 무시
-/// - Skip 버튼 : 항상 즉시 종료
-/// </summary>
+///</summary>
 public class CutsceneManager : MonoBehaviour, IPointerClickHandler
 {
     public enum State { Idle, FadingIn, Typing, WaitingDelay, WaitingInput, FadingOut, Finished }
@@ -35,7 +34,6 @@ public class CutsceneManager : MonoBehaviour, IPointerClickHandler
     [Header("UI References")]
     [SerializeField] Image            imageView;
     [SerializeField] TypewriterEffect typewriter;
-    [SerializeField] Button           skipButton;
 
     [Header("Fade Overlay")]
     [Tooltip("검은 패널에 붙은 CanvasGroup. 시작 시 alpha=1 (검은 화면)에서 시작해 페이드인.")]
@@ -44,9 +42,6 @@ public class CutsceneManager : MonoBehaviour, IPointerClickHandler
     [Header("Behaviour")]
     [Tooltip("타이핑 완료 후 입력 받기까지 대기 시간(초). 너무 빠른 탭 방지.")]
     [Min(0f)] [SerializeField] float inputDelayAfterTyping = 0.3f;
-
-    [Tooltip("Skip 시 페이드아웃 시간(초).")]
-    [Min(0f)] [SerializeField] float skipFadeOutDuration = 0.4f;
 
     State state = State.Idle;
     int   cutIndex;
@@ -58,7 +53,6 @@ public class CutsceneManager : MonoBehaviour, IPointerClickHandler
 
     void Awake()
     {
-        if (skipButton != null) skipButton.onClick.AddListener(Skip);
         if (typewriter != null) typewriter.OnComplete += OnTypewriterComplete;
         if (fadePanel  != null)
         {
@@ -70,7 +64,6 @@ public class CutsceneManager : MonoBehaviour, IPointerClickHandler
 
     void OnDestroy()
     {
-        if (skipButton != null) skipButton.onClick.RemoveListener(Skip);
         if (typewriter != null) typewriter.OnComplete -= OnTypewriterComplete;
     }
 
@@ -84,15 +77,6 @@ public class CutsceneManager : MonoBehaviour, IPointerClickHandler
         cutIndex  = 0;
         lineIndex = 0;
         StartCoroutine(StartCutRoutine(cuts[0]));
-    }
-
-    /// <summary>즉시 종료(페이드아웃 후 OnFinished).</summary>
-    public void Skip()
-    {
-        if (state == State.Finished) return;
-        StopAllCoroutines();
-        if (typewriter != null) typewriter.Stop();
-        StartCoroutine(SkipRoutine());
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -177,13 +161,6 @@ public class CutsceneManager : MonoBehaviour, IPointerClickHandler
     {
         state = State.FadingOut;
         yield return FadeTo(1f, fadeOut);
-        Finish();
-    }
-
-    IEnumerator SkipRoutine()
-    {
-        state = State.FadingOut;
-        yield return FadeTo(1f, skipFadeOutDuration);
         Finish();
     }
 
