@@ -1515,7 +1515,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.85, g: 0.92, b: 0.85, a: 1}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -4985,7 +4985,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4278718234
   m_fontColor: {r: 0.1, g: 0.06, b: 0.03, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4998,7 +4998,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -5025,13 +5025,13 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
   m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
-  m_isOrthographic: 0
+  m_isOrthographic: 1
   m_isCullingEnabled: 0
   m_horizontalMapping: 0
   m_verticalMapping: 0
@@ -8035,7 +8035,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -8062,13 +8062,13 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
   m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
-  m_isOrthographic: 0
+  m_isOrthographic: 1
   m_isCullingEnabled: 0
   m_horizontalMapping: 0
   m_verticalMapping: 0
@@ -8293,7 +8293,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4278718234
   m_fontColor: {r: 0.1, g: 0.06, b: 0.03, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -8306,7 +8306,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -8333,13 +8333,13 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
   m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
-  m_isOrthographic: 0
+  m_isOrthographic: 1
   m_isCullingEnabled: 0
   m_horizontalMapping: 0
   m_verticalMapping: 0
@@ -10717,7 +10717,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -10744,13 +10744,13 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
   m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
-  m_isOrthographic: 0
+  m_isOrthographic: 1
   m_isCullingEnabled: 0
   m_horizontalMapping: 0
   m_verticalMapping: 0
@@ -16459,7 +16459,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -16486,13 +16486,13 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
   m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
-  m_isOrthographic: 0
+  m_isOrthographic: 1
   m_isCullingEnabled: 0
   m_horizontalMapping: 0
   m_verticalMapping: 0
@@ -17223,7 +17223,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5338195480105227259, guid: a5a989afe0af19e4c8f640bef5378bbb, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1200
+      value: 1100
       objectReference: {fileID: 0}
     - target: {fileID: 5338195480105227259, guid: a5a989afe0af19e4c8f640bef5378bbb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17259,7 +17259,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5338195480105227259, guid: a5a989afe0af19e4c8f640bef5378bbb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 477.5
+      value: 518
       objectReference: {fileID: 0}
     - target: {fileID: 5338195480105227259, guid: a5a989afe0af19e4c8f640bef5378bbb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -17486,7 +17486,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1469886247031259506, guid: 27ba7f4b4242abc4fa78ff81b890abd4, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1200
+      value: 1100
       objectReference: {fileID: 0}
     - target: {fileID: 1469886247031259506, guid: 27ba7f4b4242abc4fa78ff81b890abd4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17522,7 +17522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1469886247031259506, guid: 27ba7f4b4242abc4fa78ff81b890abd4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 477.5
+      value: 518
       objectReference: {fileID: 0}
     - target: {fileID: 1469886247031259506, guid: 27ba7f4b4242abc4fa78ff81b890abd4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -17680,7 +17680,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3606958510193433921, guid: 0c350c3d48872974eba99cc573c4c21b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1200
+      value: 1100
       objectReference: {fileID: 0}
     - target: {fileID: 3606958510193433921, guid: 0c350c3d48872974eba99cc573c4c21b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17716,7 +17716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3606958510193433921, guid: 0c350c3d48872974eba99cc573c4c21b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -720.5
+      value: -600
       objectReference: {fileID: 0}
     - target: {fileID: 3606958510193433921, guid: 0c350c3d48872974eba99cc573c4c21b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -17758,6 +17758,10 @@ PrefabInstance:
       propertyPath: itemRowPrefab
       value: 
       objectReference: {fileID: 3267116125898713781, guid: c2b9f816b8f56a44bb06ca11388a8edb, type: 3}
+    - target: {fileID: 7705836536368995005, guid: 0c350c3d48872974eba99cc573c4c21b, type: 3}
+      propertyPath: shopPositionY
+      value: -600
+      objectReference: {fileID: 0}
     - target: {fileID: 7705836536368995005, guid: 0c350c3d48872974eba99cc573c4c21b, type: 3}
       propertyPath: itemListContent
       value: 
